@@ -1,8 +1,7 @@
 import { nonNull, objectType, extendType, intArg } from 'nexus';
 import * as php from 'php-serialize';
 
-import { SubjectRepo } from '../../orm';
-import type * as entity from '../../orm/entity';
+import type { chii_episodes } from '../../generated/client';
 import type { Context } from '../context';
 
 const Episode = objectType({
@@ -61,31 +60,31 @@ const Subject = objectType({
       async resolve(
         parent: { id: number },
         { limit, offset, type }: { limit: number; offset: number; type: number | undefined },
-        { repo }: Context,
+        { prisma }: Context,
       ) {
         if (offset < 0) {
-          const count = await repo.Episode.count({
-            where: { epType: type ?? undefined, epSubjectId: parent.id },
+          const count = await prisma.chii_episodes.count({
+            where: { ep_type: type ?? undefined, ep_subject_id: parent.id },
           });
           offset = count + offset;
         }
 
-        const episodes = await repo.Episode.find({
-          order: { epSort: 'asc' },
-          where: { epType: type ?? undefined, epSubjectId: parent.id },
+        const episodes = await prisma.chii_episodes.findMany({
+          orderBy: { ep_sort: 'asc' },
+          where: { ep_type: type ?? undefined, ep_subject_id: parent.id },
           skip: offset,
           take: limit,
         });
 
-        return episodes.map((e: entity.Episode) => {
+        return episodes.map((e: chii_episodes) => {
           return {
-            id: e.id,
-            name: e.epName,
-            name_cn: e.epNameCn,
-            description: e.epDesc,
-            type: e.epType,
-            duration: e.epDuration,
-            sort: e.epSort,
+            id: e.ep_id,
+            name: e.ep_name,
+            name_cn: e.ep_name_cn,
+            description: e.ep_desc,
+            type: e.ep_type,
+            duration: e.ep_duration,
+            sort: e.ep_sort,
           };
         });
       },
@@ -99,10 +98,10 @@ const SubjectByIDQuery = extendType({
     t.field('subject', {
       type: Subject,
       args: { id: nonNull(intArg()) },
-      async resolve(_parent, { id }: { id: number }, { auth: { allowNsfw }, repo }: Context) {
-        const subject = await SubjectRepo.findOne({
+      async resolve(_parent, { id }: { id: number }, { auth: { allowNsfw }, prisma }: Context) {
+        const subject = await prisma.subjects.findUnique({
           where: {
-            id,
+            subject_id: id,
           },
         });
 
@@ -110,11 +109,11 @@ const SubjectByIDQuery = extendType({
           return null;
         }
 
-        if (subject.subjectNsfw && !allowNsfw) {
+        if (subject.subject_nsfw && !allowNsfw) {
           return null;
         }
 
-        const fields = await repo.SubjectFields.findOne({
+        const fields = await prisma.subjectFields.findUnique({
           where: {
             subject_id: id,
           },
@@ -125,11 +124,11 @@ const SubjectByIDQuery = extendType({
         }
 
         return {
-          id: subject.id,
-          name: subject.subjectName,
-          name_cn: subject.subjectNameCn,
+          id: subject.subject_id,
+          name: subject.subject_name,
+          name_cn: subject.subject_name_cn,
           tags: (
-            php.unserialize(fields.fieldTags) as { tag_name: string | undefined; result: string }[]
+            php.unserialize(fields.field_tags) as { tag_name: string | undefined; result: string }[]
           )
             .filter((x) => x.tag_name !== undefined)
             .map((x) => ({ name: x.tag_name, count: Number.parseInt(x.result) }))

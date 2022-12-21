@@ -1,18 +1,19 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
-import { SessionRepo } from '../../../orm';
+import prisma from '../../../prisma';
 import redis from '../../../redis';
 import { createServer } from '../../../server';
+import { comparePassword } from './login';
 
 describe('login', () => {
   beforeEach(async () => {
     await redis.flushdb('SYNC');
-    await SessionRepo.createQueryBuilder().where('true').delete().execute();
+    await prisma.chii_os_web_sessions.deleteMany();
   });
 
   afterEach(async () => {
     await redis.flushdb('SYNC');
-    await SessionRepo.createQueryBuilder().where('true').delete().execute();
+    await prisma.chii_os_web_sessions.deleteMany();
   });
 
   test('should failed on too many requests', async () => {
@@ -20,8 +21,8 @@ describe('login', () => {
 
     const opt = {
       method: 'post',
-      url: '/p1/login2',
-      payload: { email: 'ee', password: 'eepp', 'cf-turnstile-response': 'fake-response' },
+      url: '/p1/login',
+      payload: { email: 'ee', password: 'eepp', 'h-captcha-response': 'fake-response' },
     } as const;
 
     const login = () => app.inject(opt);
@@ -41,11 +42,11 @@ describe('login', () => {
 
     const res = await app.inject({
       method: 'post',
-      url: '/p1/login2',
+      url: '/p1/login',
       payload: {
         email: 'treeholechan@gmail.com',
         password: 'lovemeplease',
-        'cf-turnstile-response': 'fake-response',
+        'h-captcha-response': 'fake-response',
       },
     });
 
@@ -53,5 +54,19 @@ describe('login', () => {
     // @ts-expect-error remove this ts-ignore after light-my-request release a new version
     expect(res.cookies.filter((x: { name: string }) => x.name === 'sessionID')).toHaveLength(1);
     expect(res.json()).toMatchSnapshot();
+  });
+});
+
+describe('compare password', () => {
+  test('should pass', async () => {
+    const hashed = '$2a$12$GA5Pr9GhsyLJcSPoTpYBY.JqTzYZb2nfgSeZ1EK38bfgk/Rykkvuq';
+    const input = 'lovemeplease';
+    await expect(comparePassword(hashed, input)).resolves.toBe(true);
+  });
+
+  test('should not pass', async () => {
+    const hashed = '$2a$12$GA5Pr9GhsyLJcSPoTpYBY.JqTzYZb2nfgSeZ1EK38bfgk/Rykkvuq';
+    const input = 'lovemeplease1';
+    await expect(comparePassword(hashed, input)).resolves.toBe(false);
   });
 });

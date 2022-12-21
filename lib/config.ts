@@ -4,11 +4,11 @@
  *
  * Env.REDIS_URI 默认 'redis://127.0.0.1:3306/0'
  *
- * Env.TURNSTILE_SITE_KEY cloudflare turnstile 的 key Env.TURNSTILE_SECRET_KEY
+ * Env.HCAPTCHA_SECRET_KEY 默认为 hCaptcha 的开发用key '0x0000000000000000000000000000000000000000'
  *
- * Env.HTTPS_PROXY 默认为空，如果设置了的话，会作为 turnstile 的代理
+ * Env.HTTPS_PROXY 默认为空，如果设置了的话，会作为 hCaptcha 的代理
  *
- * MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASS, MYSQL_DB mysql 配置
+ * Env.DATABASE_URL prisma 会使用这个环境变量，未在这个文件内读取
  *
  * 配置文件见 `configFileType` 变量，定义了配置文件的 json schema
  */
@@ -26,16 +26,12 @@ import * as yaml from 'js-yaml';
 // read from env
 
 const {
+  HCAPTCHA_SECRET_KEY = '0x0000000000000000000000000000000000000000',
   HTTPS_PROXY = '',
   TURNSTILE_SECRET_KEY = '1x0000000000000000000000000000000AA',
   TURNSTILE_SITE_KEY = '1x00000000000000000000AA',
   NODE_ENV,
   REDIS_URI,
-  MYSQL_HOST,
-  MYSQL_PORT = '3306',
-  MYSQL_USER,
-  MYSQL_PASS,
-  MYSQL_DB = 'bangumi',
 } = process.env;
 
 export const production = NODE_ENV === 'production';
@@ -62,16 +58,7 @@ export const redisOption = {
   lazyConnect: true,
 } satisfies RedisOptions;
 
-export {
-  HTTPS_PROXY,
-  TURNSTILE_SITE_KEY,
-  TURNSTILE_SECRET_KEY,
-  MYSQL_HOST,
-  MYSQL_PORT,
-  MYSQL_USER,
-  MYSQL_PASS,
-  MYSQL_DB,
-};
+export { HCAPTCHA_SECRET_KEY, HTTPS_PROXY, TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY };
 
 // read config file
 

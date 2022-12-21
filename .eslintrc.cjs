@@ -11,7 +11,7 @@ module.exports = {
     'plugin:@typescript-eslint/strict',
     'prettier',
   ],
-  plugins: ['@typescript-eslint', 'import', 'unicorn', 'tsdoc', 'unused-imports'],
+  plugins: ['@typescript-eslint', 'import', 'unicorn', 'tsdoc'],
   ignorePatterns: ['**/dist/*', 'lib/generated/**/*', 'coverage/**/*'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -24,7 +24,6 @@ module.exports = {
     node: true,
   },
   rules: {
-    'unused-imports/no-unused-imports': 'error',
     curly: ['error'],
     'tsdoc/syntax': 'error',
     'no-new-object': 'error',
@@ -102,7 +101,12 @@ module.exports = {
         functions: 'ignore',
       },
     ],
-    'import/first': 'error',
+    'import/no-unused-modules': [
+      1,
+      {
+        unusedExports: true,
+      },
+    ],
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '_' }],
     '@typescript-eslint/strict-boolean-expressions': 'off',
@@ -136,13 +140,12 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['tests/**/*', '*.test.ts'],
+      files: ['tests/**/*'],
       rules: {
         '@typescript-eslint/no-unnecessary-condition': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
-        '@typescript-eslint/no-unsafe-assignment': 'off',
       },
     },
     {

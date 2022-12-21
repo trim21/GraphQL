@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
-import * as typeorm from 'typeorm';
 
-import { SessionRepo } from '../orm';
+import prisma from '../prisma';
 import { randomBase62String } from '../utils';
 import * as auth from './index';
 import type { IAuth } from './index';
@@ -16,12 +15,14 @@ export async function create(user: { id: number; regTime: number }): Promise<str
     expired_at: now + 60 * 60 * 24 * 7,
   };
 
-  await SessionRepo.insert({
-    value: Buffer.from(JSON.stringify(value)),
-    userID: user.id,
-    createdAt: value.created_at,
-    expiredAt: value.expired_at,
-    key: token,
+  await prisma.chii_os_web_sessions.create({
+    data: {
+      value: Buffer.from(JSON.stringify(value)),
+      user_id: user.id,
+      created_at: value.created_at,
+      expired_at: value.expired_at,
+      key: token,
+    },
   });
 
   return token;
@@ -33,16 +34,25 @@ export async function create(user: { id: number; regTime: number }): Promise<str
  * @param sessionID - Store in user cookies
  */
 export async function get(sessionID: string): Promise<IAuth | null> {
-  const session = await SessionRepo.findOne({
-    where: { key: sessionID, expiredAt: typeorm.MoreThanOrEqual(dayjs().unix()) },
+  const session = await prisma.chii_os_web_sessions.findFirst({
+    where: { key: sessionID, expired_at: { gte: dayjs().unix() } },
   });
   if (!session) {
     return null;
   }
 
-  return await auth.byUserID(session.userID);
+  return await auth.byUserID(session.user_id);
 }
 
 export async function revoke(sessionID: string) {
-  await SessionRepo.update({ key: sessionID }, { expiredAt: dayjs().unix() - 60 * 60 });
+  await Promise.all([
+    prisma.chii_os_web_sessions.update({
+      where: {
+        key: sessionID,
+      },
+      data: {
+        expired_at: dayjs().unix() - 60 * 60,
+      },
+    }),
+  ]);
 }

@@ -1,14 +1,11 @@
-import crypto from 'node:crypto';
-
 import { createError } from '@fastify/error';
-import * as bcrypt from 'bcrypt';
 import dayjs from 'dayjs';
 import NodeCache from 'node-cache';
-import { FindOperator } from 'typeorm';
 
 import { redisPrefix } from '../config';
 import type { IUser, Permission } from '../orm';
-import { fetchPermission, fetchUser, AccessTokenRepo } from '../orm';
+import { fetchPermission, fetchUser } from '../orm';
+import prisma from '../prisma';
 import redis from '../redis';
 
 const tokenPrefix = 'Bearer ';
@@ -68,27 +65,23 @@ export async function byHeader(key: string | string[] | undefined): Promise<IAut
   return await byToken(token);
 }
 
-export async function byToken(accessToken: string): Promise<IAuth | null> {
-  const key = `${redisPrefix}-auth-access-token-${accessToken}`;
+export async function byToken(access_token: string): Promise<IAuth | null> {
+  const key = `${redisPrefix}-auth-access-token-${access_token}`;
   const cached = await redis.get(key);
   if (cached) {
     const user = JSON.parse(cached) as IUser;
     return await userToAuth(user);
   }
 
-  const token = await AccessTokenRepo.findOne({
-    where: { accessToken, expires: new FindOperator<Date>('moreThanOrEqual', new Date()) },
+  const token = await prisma.chii_oauth_access_tokens.findFirst({
+    where: { access_token, expires: { gte: new Date() } },
   });
 
   if (!token) {
     throw new TokenNotValidError();
   }
 
-  if (!token.userId) {
-    throw new Error('access token without user id');
-  }
-
-  const u = await fetchUser(Number.parseInt(token.userId));
+  const u = await fetchUser(Number.parseInt(token.user_id));
   if (!u) {
     throw new MissingUserError();
   }
@@ -152,12 +145,4 @@ async function userToAuth(user: IUser): Promise<IAuth> {
     allowNsfw: user.regTime - dayjs().unix() <= 60 * 60 * 24 * 90,
     groupID: user.groupID,
   };
-}
-
-function processPassword(s: string): string {
-  return crypto.createHash('md5').update(s).digest('hex');
-}
-
-export async function comparePassword(hashed: string, input: string): Promise<boolean> {
-  return bcrypt.compare(processPassword(input), hashed);
 }

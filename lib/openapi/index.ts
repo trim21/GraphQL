@@ -1,5 +1,4 @@
 export const Tag = {
-  User: 'user',
   Auth: 'auth',
   Topic: 'topic',
 } as const;

@@ -1,10 +1,10 @@
-import { createError } from '@fastify/error';
 import dayjs from 'dayjs';
 
-import { UnimplementedError } from './error';
+import { UnexpectedNotFoundError, UnimplementedError } from './errors';
+import type * as Prisma from './generated/client';
 import type { IUser } from './orm';
-import { fetchUserX, AppDataSource, GroupPostRepo } from './orm';
-import * as entity from './orm/entity';
+import { fetchUserX } from './orm';
+import prisma from './prisma';
 
 export const enum Type {
   group = 'group',
@@ -35,7 +35,7 @@ interface IPost {
 }
 
 async function getSubjectTopic(id: number): Promise<IPost | null> {
-  const p = await GroupPostRepo.findOne({
+  const p = await prisma.groupPosts.findFirst({
     where: {
       id,
     },
@@ -51,7 +51,7 @@ async function getSubjectTopic(id: number): Promise<IPost | null> {
     user: await fetchUserX(p.uid),
     createdAt: p.dateline,
     state: p.state,
-    topicID: p.topicID,
+    topicID: p.mid,
     content: p.content,
   };
 }
@@ -64,75 +64,61 @@ export async function getPost(type: Type, id: number): Promise<IPost | null> {
   throw new UnimplementedError(`topic ${type}`);
 }
 
-export const NotJoinPrivateGroupError = createError(
-  'NOT_JOIN_PRIVATE_GROUP_ERROR',
-  `you need to join private group '%s' before you create a post or reply`,
-  401,
-);
-
 export async function createTopicReply({
-  topicType,
+  type,
   topicID,
   userID,
+  relatedID = 0,
   content,
-  parentID,
   state = ReplyState.Normal,
 }: {
-  topicType: Type;
+  type: Type;
   topicID: number;
   userID: number;
   content: string;
-  parentID: number;
+  relatedID?: number;
   state?: ReplyState;
 }): Promise<IPost> {
-  if (topicType !== Type.group) {
-    throw new UnimplementedError('creating group reply');
-  }
+  if (type === Type.group) {
+    const p = await prisma.$transaction(async (t) => {
+      const topic = await t.groupTopics.findFirst({ where: { id: topicID } });
 
-  const now = dayjs();
+      if (!topic) {
+        throw new UnexpectedNotFoundError(`group topic ${topicID}`);
+      }
 
-  const p = await AppDataSource.transaction(async (t) => {
-    const GroupPostRepo = t.getRepository(entity.GroupPost);
-    const GroupTopicRepo = t.getRepository(entity.GroupTopic);
+      await t.groupTopics.update({
+        where: { id: topic.id },
+        data: { replies: topic.replies + 1 },
+      });
 
-    const topic = await GroupTopicRepo.findOneOrFail({ where: { id: topicID } });
-
-    // 创建回帖
-    const post = await GroupPostRepo.save({
-      topicID: topicID,
-      content,
-      uid: userID,
-      related: parentID,
-      state,
-      dateline: now.unix(),
+      return t.groupPosts.create({
+        data: {
+          mid: topicID,
+          content,
+          uid: userID,
+          related: relatedID,
+          state,
+          dateline: scopeUpdateTime(dayjs().unix(), type, topic),
+        },
+      });
     });
 
-    const topicUpdate = {
-      replies: topic.replies + 1,
-      dateline: undefined as undefined | number,
+    return {
+      id: p.id,
+      type: Type.group,
+      user: await fetchUserX(p.uid),
+      createdAt: p.dateline,
+      state: p.state,
+      topicID: p.mid,
+      content: p.content,
     };
+  }
 
-    if (topic.state !== ReplyState.AdminSilentTopic) {
-      topicUpdate.dateline = scoredUpdateTime(now.unix(), topicType, topic);
-    }
-
-    await GroupTopicRepo.update({ id: topic.id }, topicUpdate);
-
-    return post;
-  });
-
-  return {
-    id: p.id,
-    type: Type.group,
-    user: await fetchUserX(p.uid),
-    createdAt: p.dateline,
-    state: p.state,
-    topicID: p.topicID,
-    content: p.content,
-  };
+  throw new UnimplementedError('creating group reply');
 }
 
-function scoredUpdateTime(timestamp: number, type: Type, main_info: entity.GroupTopic): number {
+function scopeUpdateTime(timestamp: number, type: Type, main_info: Prisma.GroupTopics): number {
   if (type === Type.group && [364].includes(main_info.id) && main_info.replies > 0) {
     const $created_at = main_info.dateline;
     const $created_hours = (timestamp - $created_at) / 3600;

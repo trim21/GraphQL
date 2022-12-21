@@ -2,7 +2,6 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
 import * as yaml from 'js-yaml';
-import * as lodash from 'lodash-es';
 
 import { projectRoot } from '../lib/config';
 import { createServer } from '../lib/server';
@@ -22,7 +21,7 @@ await fs.writeFile(
 const pri = await app.inject('/p1/openapi.json');
 await fs.writeFile(
   path.resolve(projectRoot, 'dist', 'private.yaml'),
-  yaml.dump(lodash.omit(pri.json(), 'info.version'), {
+  yaml.dump(pri.json(), {
     indent: 2,
   }),
 );

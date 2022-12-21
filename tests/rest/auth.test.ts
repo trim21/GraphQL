@@ -1,29 +1,29 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 
-import { SessionRepo } from '../../lib/orm';
+import prisma from '../../lib/prisma';
 import { createServer } from '../../lib/server';
 
 const treeHoleUser = { id: 382951, nickname: '树洞酱', username: '382951' };
 const fakeIP = 'fake-client-ip-should-not-fail';
 
 beforeEach(async () => {
-  await SessionRepo.createQueryBuilder().where('true').delete().execute();
+  await prisma.chii_os_web_sessions.deleteMany();
 });
 
 afterEach(async () => {
-  await SessionRepo.createQueryBuilder().where('true').delete().execute();
+  await prisma.chii_os_web_sessions.deleteMany();
 });
 
 test('should pass login/logout authorization flow', async () => {
   const app = await createServer();
 
   const res = await app.inject({
-    url: '/p1/login2',
+    url: '/p1/login',
     method: 'post',
     payload: {
       email: 'treeholechan@gmail.com',
       password: 'lovemeplease',
-      'cf-turnstile-response': 'fake-response',
+      'h-captcha-response': 'fake-response',
     },
     headers: {
       'cf-connecting-ip': fakeIP,

@@ -23,7 +23,7 @@ jobs:
 
       - run: yarn
 
-      - run: npx prettier --check ./
+      - run: yarn format --check
       - run: npx tsc --noEmit --pretty
       - run: yarn lint
 
@@ -49,12 +49,8 @@ jobs:
       - run: yarn test --coverage
         timeout-minutes: 10
         env:
+          DATABASE_URL: 'mysql://user:password@127.0.0.1:3306/bangumi'
           HCAPTCHA_SECRET_KEY: '0x0000000000000000000000000000000000000000'
-          MYSQL_HOST: '127.0.0.1'
-          MYSQL_PORT: '3306'
-          MYSQL_USER: 'user'
-          MYSQL_PASS: 'password'
-          MYSQL_DB: 'bangumi'
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -64,6 +60,4 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: docker build -t base-image -f etc/base.dockerfile .
-      - run: docker build -t tmp -f etc/main.dockerfile .
-      - run: docker run tmp --help
+      - run: docker build .

@@ -1,16 +1,16 @@
-import type Ajv from 'ajv';
 import AltairFastify from 'altair-fastify-plugin';
 import type { FastifyInstance, FastifyRequest, FastifyServerOptions } from 'fastify';
 import { fastify } from 'fastify';
 import metricsPlugin from 'fastify-metrics';
 import mercurius from 'mercurius';
+import { register } from 'prom-client';
 
 import { emptyAuth } from './auth';
 import * as auth from './auth';
 import { production, stage, testing } from './config';
 import type { Context } from './graphql/context';
 import { schema } from './graphql/schema';
-import { repo } from './orm';
+import prisma from './prisma';
 import * as rest from './rest';
 
 declare module 'fastify' {
@@ -23,20 +23,6 @@ declare module 'fastify' {
 export async function createServer(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   if (production || stage) {
     opts.requestIdHeader ??= 'cf-ray';
-  }
-
-  if (opts.ajv?.plugins?.length) {
-    opts.ajv.plugins.push(function (ajv: Ajv) {
-      ajv.addKeyword({ keyword: 'x-examples' });
-    });
-  } else {
-    opts.ajv = {
-      plugins: [
-        function (ajv: Ajv) {
-          ajv.addKeyword({ keyword: 'x-examples' });
-        },
-      ],
-    };
   }
 
   const server = fastify(opts);
@@ -55,7 +41,14 @@ export async function createServer(opts: FastifyServerOptions = {}): Promise<Fas
   });
 
   if (!testing) {
+    server.get('/metrics', async (_req, res) => {
+      const prismaMetrics = await prisma.$metrics.prometheus();
+      const appMetrics = await register.metrics();
+      return res.send(appMetrics + prismaMetrics);
+    });
+
     await server.register(metricsPlugin, {
+      endpoint: null,
       routeMetrics: {
         groupStatusCodes: true,
         overrides: {
@@ -75,10 +68,10 @@ export async function createServer(opts: FastifyServerOptions = {}): Promise<Fas
     context: async (request: FastifyRequest): Promise<Context> => {
       const a = await auth.byHeader(request.headers.authorization);
       if (a) {
-        return { repo, auth: a };
+        return { prisma, auth: a };
       }
 
-      return { repo, auth: emptyAuth() };
+      return { prisma, auth: emptyAuth() };
     },
   });
 

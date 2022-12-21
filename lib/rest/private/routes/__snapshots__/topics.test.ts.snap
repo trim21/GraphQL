@@ -1,0 +1,304 @@
+// Vitest Snapshot v1
+
+exports[`create group post reply > should not create on non-existing topic 1`] = `
+{
+  "code": "NOT_FOUND",
+  "error": "Not Found",
+  "message": "topic 3716000 not found",
+  "statusCode": 404,
+}
+`;
+
+exports[`create group post reply > should not create on non-existing topic reply 1`] = `
+{
+  "code": "NOT_FOUND",
+  "error": "Not Found",
+  "message": "parent topic id 11 not found",
+  "statusCode": 404,
+}
+`;
+
+exports[`group topics > should failed on not found group 1`] = `
+{
+  "code": "NOT_FOUND",
+  "error": "Not Found",
+  "message": "group not found",
+  "statusCode": 404,
+}
+`;
+
+exports[`group topics > should fetch group profile 1`] = `
+{
+  "group": {
+    "createdAt": 1531631310,
+    "description": "[s]非[/s]官方沙盒",
+    "icon": "https://lain.bgm.tv/pic/icon/s/000/00/42/4215.jpg?r=1531631345",
+    "id": 4215,
+    "name": "sandbox",
+    "nsfw": false,
+    "title": "沙盒",
+    "totalMembers": 3,
+  },
+  "inGroup": false,
+  "recentAddedMembers": [
+    {
+      "avatar": {
+        "large": "https://lain.bgm.tv/pic/user/l/000/38/29/382951.jpg?r=1571167246",
+        "medium": "https://lain.bgm.tv/pic/user/m/000/38/29/382951.jpg?r=1571167246",
+        "small": "https://lain.bgm.tv/pic/user/s/000/38/29/382951.jpg?r=1571167246",
+      },
+      "id": 382951,
+      "joinedAt": 1640499538,
+      "nickname": "树洞酱",
+      "username": "382951",
+    },
+    {
+      "avatar": {
+        "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+        "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+        "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+      },
+      "id": 427613,
+      "joinedAt": 1531631570,
+      "nickname": "nickname 427613",
+      "username": "427613",
+    },
+    {
+      "avatar": {
+        "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+        "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+        "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+      },
+      "id": 287622,
+      "joinedAt": 1531631310,
+      "nickname": "nickname 287622",
+      "username": "287622",
+    },
+  ],
+  "topics": [
+    {
+      "createdAt": 1657885648,
+      "creator": {
+        "avatar": {
+          "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+          "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+          "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+        },
+        "id": 287622,
+        "nickname": "nickname 287622",
+        "sign": "sing 287622",
+        "user_group": 0,
+        "username": "287622",
+      },
+      "id": 371602,
+      "parentID": 4215,
+      "repliesCount": 2,
+      "title": "tes",
+      "updatedAt": 1662283112,
+    },
+  ],
+  "totalTopics": 1,
+}
+`;
+
+exports[`group topics > should fetch topic details 1`] = `
+{
+  "createdAt": 1657885648,
+  "creator": {
+    "avatar": {
+      "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+      "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+      "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+    },
+    "id": 287622,
+    "nickname": "nickname 287622",
+    "sign": "sing 287622",
+    "user_group": 0,
+    "username": "287622",
+  },
+  "group": {
+    "createdAt": 1531631310,
+    "description": "[s]非[/s]官方沙盒",
+    "icon": "https://lain.bgm.tv/pic/icon/s/000/00/42/4215.jpg?r=1531631345",
+    "id": 4215,
+    "name": "sandbox",
+    "nsfw": false,
+    "title": "沙盒",
+    "totalMembers": 3,
+  },
+  "id": 371602,
+  "replies": [
+    {
+      "createdAt": 1658030918,
+      "creator": {
+        "avatar": {
+          "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+          "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+          "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+        },
+        "id": 287622,
+        "nickname": "nickname 287622",
+        "sign": "sing 287622",
+        "user_group": 0,
+        "username": "287622",
+      },
+      "id": 2056216,
+      "isFriend": false,
+      "replies": [],
+      "state": 6,
+      "text": "",
+    },
+    {
+      "createdAt": 1662276469,
+      "creator": {
+        "avatar": {
+          "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+          "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+          "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+        },
+        "id": 287622,
+        "nickname": "nickname 287622",
+        "sign": "sing 287622",
+        "user_group": 0,
+        "username": "287622",
+      },
+      "id": 2092004,
+      "isFriend": false,
+      "replies": [],
+      "state": 7,
+      "text": "",
+    },
+    {
+      "createdAt": 1662282514,
+      "creator": {
+        "avatar": {
+          "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+          "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+          "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+        },
+        "id": 1,
+        "nickname": "nickname 1",
+        "sign": "sing 1",
+        "user_group": 0,
+        "username": "1",
+      },
+      "id": 2092065,
+      "isFriend": false,
+      "replies": [],
+      "state": 5,
+      "text": "",
+    },
+    {
+      "createdAt": 1662282518,
+      "creator": {
+        "avatar": {
+          "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+          "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+          "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+        },
+        "id": 1,
+        "nickname": "nickname 1",
+        "sign": "sing 1",
+        "user_group": 0,
+        "username": "1",
+      },
+      "id": 2092066,
+      "isFriend": false,
+      "replies": [],
+      "state": 1,
+      "text": "",
+    },
+    {
+      "createdAt": 1662282523,
+      "creator": {
+        "avatar": {
+          "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+          "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+          "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+        },
+        "id": 1,
+        "nickname": "nickname 1",
+        "sign": "sing 1",
+        "user_group": 0,
+        "username": "1",
+      },
+      "id": 2092067,
+      "isFriend": false,
+      "replies": [],
+      "state": 2,
+      "text": "",
+    },
+    {
+      "createdAt": 1662282554,
+      "creator": {
+        "avatar": {
+          "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+          "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+          "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+        },
+        "id": 287622,
+        "nickname": "nickname 287622",
+        "sign": "sing 287622",
+        "user_group": 0,
+        "username": "287622",
+      },
+      "id": 2092069,
+      "isFriend": false,
+      "replies": [
+        {
+          "createdAt": 1662283112,
+          "creator": {
+            "avatar": {
+              "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+              "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+              "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+            },
+            "id": 287622,
+            "nickname": "nickname 287622",
+            "sign": "sing 287622",
+            "user_group": 0,
+            "username": "287622",
+          },
+          "id": 2092074,
+          "isFriend": false,
+          "state": 0,
+          "text": "sub",
+        },
+      ],
+      "state": 0,
+      "text": "q",
+    },
+  ],
+  "state": 2,
+  "text": "tt",
+  "title": "tes",
+}
+`;
+
+exports[`group topics > should return data 1`] = `
+{
+  "data": [
+    {
+      "createdAt": 1657885648,
+      "creator": {
+        "avatar": {
+          "large": "https://lain.bgm.tv/pic/user/l/icon.jpg",
+          "medium": "https://lain.bgm.tv/pic/user/m/icon.jpg",
+          "small": "https://lain.bgm.tv/pic/user/s/icon.jpg",
+        },
+        "id": 287622,
+        "nickname": "nickname 287622",
+        "sign": "sing 287622",
+        "user_group": 0,
+        "username": "287622",
+      },
+      "id": 371602,
+      "parentID": 4215,
+      "repliesCount": 2,
+      "title": "tes",
+      "updatedAt": 1662283112,
+    },
+  ],
+  "total": 1,
+}
+`;

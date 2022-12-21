@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": true,
     "module": "ES2022",
     "target": "ES2022",
     "moduleResolution": "Node",
@@ -13,7 +12,8 @@
     "lib": ["ES2022"],
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
+    "preserveConstEnums": false,
     "sourceMap": true,
     "declaration": false,
     "noEmit": true,

@@ -2,16 +2,7 @@ import { nanoid } from 'nanoid';
 
 import { production } from './config';
 import { logger } from './logger';
-import { AppDataSource } from './orm';
-import { Subscriber } from './redis';
 import { createServer } from './server';
-
-if (process.argv.includes('--help') || process.argv.includes('-h')) {
-  // eslint-disable-next-line no-console
-  console.log('check ./lib/config.ts for all available env');
-  // eslint-disable-next-line n/no-process-exit,unicorn/no-process-exit
-  process.exit(0);
-}
 
 const server = await createServer({
   logger: logger.child({ name: 'fastify' }, { level: production ? 'warn' : 'info' }),
@@ -19,11 +10,6 @@ const server = await createServer({
   genReqId: (): string => {
     return `dummy-ray-${nanoid()}`;
   },
-});
-
-server.addHook('onReady', async () => {
-  await Subscriber.psubscribe(`event-user-notify-*`);
-  await AppDataSource.initialize();
 });
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 4000;

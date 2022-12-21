@@ -3,26 +3,8 @@
 
 {% block content %}
 <div class='container mt-5'>
-  <div class='row'>{{ user.username }} 已经登录</div>
-  <div class='row'>user id {{ user.id }}</div>
-  {% if notifyCount %}
-    <div class='row'>{{ notifyCount }} 条新通知</div>
-  {% endif %}
-
-  {% if notify.length %}
-    <div class='row'>
-      <ul class='list-group'>
-        {% for x in notify %}
-          <li class='list-group-item'>
-            <span>time={{ x.createdAt | date: "'%Y-%m-%d %H:%M:%S'" }}</span>
-            <span>id={{ x.id }}</span>
-            <span>type={{ x.type }}</span>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endif %}
-  <div class='row'>
+  <div class='container mt-5'>
+    {{ user.username }} 已经登录
     <button class='btn btn-danger' onclick='logout()'>登出</button>
   </div>
   <script>
@@ -32,19 +14,4 @@
     }
   </script>
 </div>
-
-<script type='module'>
-  import { io } from 'https://cdn.jsdelivr.net/npm/socket.io-client@4.5.4/dist/socket.io.esm.min.js';
-
-  const socket = io(location.host, {
-    path: '/p1/socket-io/',
-    reconnection: true,
-    reconnectionDelay: 5000,
-    reconnectionDelayMax: 10000,
-  });
-
-  socket.on('notify', (ev) => {
-    console.log(ev);
-  });
-</script>
 {% endblock %}
