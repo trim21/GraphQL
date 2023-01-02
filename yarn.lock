@@ -1254,6 +1254,13 @@ cors@~2.8.5:
     object-assign "^4"
     vary "^1"
 
+cross-fetch@^3.1.5:
+  version "3.1.5"
+  resolved "https://registry.npmmirror.com/cross-fetch/-/cross-fetch-3.1.5.tgz#e1389f44d9e7ba767907f7af8454787952ab534f"
+  integrity sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==
+  dependencies:
+    node-fetch "2.6.7"
+
 cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.3.tgz#f73a85b9d5d41d045551c177e2882d4ac85728a6"
@@ -3302,6 +3309,13 @@ mdast-util-to-string@^3.1.0:
   resolved "https://registry.yarnpkg.com/mdast-util-to-string/-/mdast-util-to-string-3.1.0.tgz#56c506d065fbf769515235e577b5a261552d56e9"
   integrity sha512-n4Vypz/DZgwo0iMHLQL49dJzlp7YtAJP+N07MZHpjPf/5XJuHUWstviF4Mn2jEiR/GNmtnRRqnwsXExk3igfFA==
 
+meilisearch@^0.30.0:
+  version "0.30.0"
+  resolved "https://registry.npmmirror.com/meilisearch/-/meilisearch-0.30.0.tgz#707f9a6b07440c496b965379616e084f112160ae"
+  integrity sha512-3y1hALOwTDpquYar+gDREqRasFPWKxkWAhk6h+RF+nKObPVf9N77wcTNvukGwOKbxRyJnKge0OPgAB1BkB9VVw==
+  dependencies:
+    cross-fetch "^3.1.5"
+
 mercurius-integration-testing@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/mercurius-integration-testing/-/mercurius-integration-testing-6.0.1.tgz#758d4447fff27a0061c7503989693bf40de7a3de"
@@ -3761,7 +3775,7 @@ node-cache@^5.1.2:
   dependencies:
     clone "2.x"
 
-node-fetch@^2.6.7:
+node-fetch@2.6.7, node-fetch@^2.6.7:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==

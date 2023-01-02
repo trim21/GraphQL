@@ -83,6 +83,7 @@
     "js-yaml": "^4.1.0",
     "liquidjs": "^10.3.3",
     "lodash-es": "^4.17.21",
+    "meilisearch": "^0.30.0",
     "mercurius": "^11.4.0",
     "mysql2": "^2.3.3",
     "nanoid": "^4.0.0",

@@ -36,6 +36,8 @@ const {
   MYSQL_USER,
   MYSQL_PASS,
   MYSQL_DB = 'bangumi',
+  MEILISEARCH_URL,
+  MEILISEARCH_KEY,
   REF,
 } = process.env;
 
@@ -75,6 +77,8 @@ export {
   MYSQL_USER,
   MYSQL_PASS,
   MYSQL_DB,
+  MEILISEARCH_URL,
+  MEILISEARCH_KEY,
 };
 
 // read config file
