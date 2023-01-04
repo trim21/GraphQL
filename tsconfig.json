@@ -3,7 +3,7 @@
     "experimentalDecorators": true,
     "module": "ESNext",
     "target": "ES2022",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "useUnknownInCatchVariables": true,
     "esModuleInterop": true,
@@ -19,6 +19,7 @@
     "noEmit": true,
     "rootDir": ".",
     "baseUrl": ".",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "paths": {
       // 生产环境依赖 @esbuild-kit/esm-loader 进行加载

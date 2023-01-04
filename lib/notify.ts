@@ -2,7 +2,7 @@ import type { Dayjs } from 'dayjs';
 import * as lodash from 'lodash-es';
 import * as php from 'php-serialize';
 import * as typeorm from 'typeorm';
-import type { Repository } from 'typeorm/repository/Repository';
+import type { Repository } from 'typeorm/repository/Repository.d.ts';
 
 import { UnreachableError } from './error';
 import * as orm from './orm';
