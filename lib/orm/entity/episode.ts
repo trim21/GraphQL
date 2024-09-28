@@ -1,110 +1,106 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
-@Index('ep_sort', ['sort'], {})
-@Index('ep_disc', ['epDisc'], {})
-@Index('ep_subject_id', ['subjectID'], {})
-@Index('ep_lastpost', ['epLastPost'], {})
-@Index('ep_ban', ['epBan'], {})
-@Index('ep_subject_id_2', ['subjectID', 'epBan', 'sort'], {})
-@Entity('chii_episodes', { schema: 'bangumi' })
+@Entity({ tableName: 'chii_episodes', schema: 'bangumi' })
 export class Episode {
-  @PrimaryGeneratedColumn({ type: 'mediumint', name: 'ep_id', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', name: 'ep_id', unsigned: true, autoincrement: true })
   id!: number;
 
-  @Column('mediumint', { name: 'ep_subject_id', unsigned: true })
+  @Property({ name: 'ep_subject_id', unsigned: true, type: 'mediumint' })
   subjectID!: number;
 
-  @Column('float', {
+  @Property({
     name: 'ep_sort',
+    type: 'float',
     unsigned: true,
     precision: 12,
-    default: () => "'0'",
+    default: "'0'",
   })
   sort!: number;
 
-  @Column('tinyint', { name: 'ep_type', unsigned: true })
+  @Property({ name: 'ep_type', unsigned: true, type: 'tinyint' })
   type!: number;
 
-  @Column('tinyint', {
+  @Property({
+    type: 'tinyint',
     name: 'ep_disc',
     comment: '碟片数',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   epDisc!: number;
 
-  @Column('varchar', { name: 'ep_name', length: 80 })
+  @Property({ name: 'ep_name', length: 80, type: 'varchar' })
   name!: string;
 
-  @Column('varchar', { name: 'ep_name_cn', length: 80 })
+  @Property({ name: 'ep_name_cn', length: 80, type: 'varchar' })
   nameCN!: string;
 
-  @Column('tinyint', { name: 'ep_rate' })
+  @Property({ name: 'ep_rate', type: 'tinyint' })
   epRate!: number;
 
-  @Column('varchar', { name: 'ep_duration', length: 80 })
+  @Property({ name: 'ep_duration', length: 80, type: 'varchar' })
   duration!: string;
 
-  @Column('varchar', { name: 'ep_airdate', length: 80 })
+  @Property({ name: 'ep_airdate', length: 80, type: 'varchar' })
   airDate!: string;
 
   /** @deprecated 在线播放地址 */
-  @Column('mediumtext', { name: 'ep_online' })
+  @Property({ name: 'ep_online', type: 'mediumtext' })
   epOnline!: string;
 
-  @Column('mediumint', { name: 'ep_comment', unsigned: true })
+  @Property({ name: 'ep_comment', unsigned: true, type: 'mediumint' })
   epComment!: number;
 
-  @Column('mediumint', { name: 'ep_resources', unsigned: true })
+  @Property({ name: 'ep_resources', unsigned: true, type: 'mediumint' })
   epResources!: number;
 
-  @Column('mediumtext', { name: 'ep_desc' })
+  @Property({ name: 'ep_desc', type: 'mediumtext' })
   summary!: string;
 
-  @Column('int', { name: 'ep_dateline', unsigned: true })
+  @Property({ name: 'ep_dateline', unsigned: true, type: 'int' })
   epDateline!: number;
 
-  @Column('int', { name: 'ep_lastpost', unsigned: true })
+  @Property({ name: 'ep_lastpost', unsigned: true, type: 'int' })
   epLastPost!: number;
 
-  @Column('tinyint', { name: 'ep_lock', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'ep_lock', unsigned: true, default: "'0'", type: 'tinyint' })
   epLock!: number;
 
-  @Column('tinyint', { name: 'ep_ban', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'ep_ban', unsigned: true, default: "'0'", type: 'tinyint' })
   epBan!: number;
 }
 
-@Index('ep_cmt_crt_id', ['epID'], {})
-@Index('ep_pst_related', ['relatedID'], {})
-@Index('ep_pst_uid', ['creatorID'], {})
-@Entity('chii_ep_comments', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_ep_comments' })
 export class EpisodeComment {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: 'mediumint',
     name: 'ep_pst_id',
     unsigned: true,
+    autoincrement: true,
   })
   id!: number;
 
-  @Column('mediumint', { name: 'ep_pst_mid', unsigned: true })
+  @Property({ name: 'ep_pst_mid', unsigned: true, type: 'mediumint' })
   epID!: number;
 
-  @Column('mediumint', { name: 'ep_pst_uid', unsigned: true })
+  @Property({ name: 'ep_pst_uid', unsigned: true, type: 'mediumint' })
   creatorID!: number;
 
-  @Column('mediumint', {
+  @Property({
+    type: 'mediumint',
+
     name: 'ep_pst_related',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   relatedID!: number;
 
-  @Column('int', { name: 'ep_pst_dateline', unsigned: true })
+  @Property({ name: 'ep_pst_dateline', unsigned: true, type: 'int' })
   createdAt!: number;
 
-  @Column('mediumtext', { name: 'ep_pst_content' })
+  @Property({ name: 'ep_pst_content', type: 'mediumtext' })
   content!: string;
 
-  @Column('mediumtext', { name: 'ep_pst_state', default: () => "'0'" })
+  @Property({ name: 'ep_pst_state', default: "'0'", type: 'mediumtext' })
   state!: number;
 }

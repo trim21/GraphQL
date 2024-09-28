@@ -1,60 +1,58 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
-@Index('rev_subject_id', ['subjectID', 'creatorID'], {})
-@Index('rev_type', ['type'], {})
-@Index('rev_dateline', ['createdAt'], {})
-@Index('rev_creator', ['creatorID', 'id'], {})
-@Entity('chii_subject_revisions', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_subject_revisions' })
 export class SubjectRev {
-  @PrimaryGeneratedColumn({ type: 'mediumint', name: 'rev_id', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', name: 'rev_id', unsigned: true })
   id!: number;
 
-  @Column('tinyint', {
+  @Property({
     name: 'rev_type',
     comment: '修订类型',
     unsigned: true,
-    default: () => "'1'",
+    type: 'int',
+    default: "'1'",
   })
   type!: number;
 
-  @Column('mediumint', { name: 'rev_subject_id', unsigned: true })
+  @Property({ name: 'rev_subject_id', unsigned: true, type: 'mediumint' })
   subjectID!: number;
 
-  @Column('smallint', {
+  @Property({
+    type: 'smallint',
     name: 'rev_type_id',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   typeID!: number;
 
-  @Column('mediumint', { name: 'rev_creator', unsigned: true })
+  @Property({ name: 'rev_creator', unsigned: true, type: 'mediumint' })
   creatorID!: number;
 
-  @Column('int', { name: 'rev_dateline', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'rev_dateline', unsigned: true, default: "'0'", type: 'int' })
   createdAt!: number;
 
-  @Column('varchar', { name: 'rev_name', length: 80 })
+  @Property({ name: 'rev_name', length: 80, type: 'varchar' })
   name!: string;
 
-  @Column('varchar', { name: 'rev_name_cn', length: 80 })
+  @Property({ name: 'rev_name_cn', length: 80, type: 'varchar' })
   nameCN!: string;
 
-  @Column('mediumtext', { name: 'rev_field_infobox' })
+  @Property({ name: 'rev_field_infobox', type: 'mediumtext' })
   infobox!: string;
 
-  @Column('mediumtext', { name: 'rev_field_summary' })
+  @Property({ name: 'rev_field_summary', type: 'mediumtext' })
   summary!: string;
 
   /** @deprecated 未使用 */
-  @Column('mediumtext', { name: 'rev_vote_field' })
+  @Property({ name: 'rev_vote_field', type: 'mediumtext' })
   revVoteField!: string;
 
-  @Column('mediumint', { name: 'rev_field_eps', unsigned: true })
+  @Property({ name: 'rev_field_eps', unsigned: true, type: 'mediumint' })
   eps!: number;
 
-  @Column('varchar', { name: 'rev_edit_summary', length: 200 })
+  @Property({ name: 'rev_edit_summary', length: 200, type: 'varchar' })
   commitMessage!: string;
 
-  @Column('smallint', { name: 'rev_platform', unsigned: true })
+  @Property({ name: 'rev_platform', unsigned: true, type: 'smallint' })
   platform!: number;
 }

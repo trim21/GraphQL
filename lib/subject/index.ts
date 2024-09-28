@@ -11,13 +11,7 @@ import { logger } from '@app/lib/logger.ts';
 import * as entity from '@app/lib/orm/entity/index.ts';
 import { Like } from '@app/lib/orm/entity/index.ts';
 import * as orm from '@app/lib/orm/index.ts';
-import {
-  AppDataSource,
-  fetchUsers,
-  LikeRepo,
-  SubjectImageRepo,
-  SubjectRepo,
-} from '@app/lib/orm/index.ts';
+import { fetchUsers, LikeRepo, SubjectImageRepo, SubjectRepo } from '@app/lib/orm/index.ts';
 import { extractDate } from '@app/lib/subject/date.ts';
 import { DATE } from '@app/lib/utils/date.ts';
 
@@ -91,7 +85,7 @@ export async function edit({
     throw error;
   }
 
-  await AppDataSource.transaction(async (t) => {
+  await orm.em.transactional(async (t) => {
     const SubjectRevRepo = t.getRepository(entity.SubjectRev);
     const SubjectFieldRepo = t.getRepository(entity.SubjectFields);
     const SubjectRepo = t.getRepository(entity.Subject);

@@ -1,186 +1,198 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-
 import { BooleanTransformer, htmlEscapedString } from '@app/lib/orm/transformer.ts';
 
 import type { User } from './user';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
-@Entity('chii_groups', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_groups' })
 export class Group {
-  @PrimaryGeneratedColumn({ type: 'smallint', name: 'grp_id', unsigned: true })
+  @PrimaryKey({ type: 'smallint', name: 'grp_id', unsigned: true })
   id!: number;
 
-  @Column('smallint', { name: 'grp_cat', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'grp_cat', unsigned: true, default: "'0'", type: 'smallint' })
   cat!: number;
 
-  @Column('char', { name: 'grp_name', length: 50 })
+  @Property({ name: 'grp_name', length: 50, type: 'char' })
   name!: string;
 
-  @Column('char', { name: 'grp_title', length: 50 })
+  @Property({ name: 'grp_title', length: 50, type: 'char' })
   title!: string;
 
-  @Column('varchar', { name: 'grp_icon', length: 255 })
+  @Property({ name: 'grp_icon', length: 255, type: 'varchar' })
   icon!: string;
 
-  @Column('mediumint', {
+  @Property({
     name: 'grp_creator',
     unsigned: true,
-    default: () => "'0'",
+    type: 'mediumint',
+    default: "'0'",
   })
   grpCreator!: number;
 
-  @Column('mediumint', {
+  @Property({
     name: 'grp_topics',
     unsigned: true,
-    default: () => "'0'",
+    type: 'mediumint',
+    default: "'0'",
   })
   grpTopics!: number;
 
-  @Column('mediumint', {
+  @Property({
     name: 'grp_posts',
     unsigned: true,
-    default: () => "'0'",
+    type: 'mediumint',
+    default: "'0'",
   })
   grpPosts!: number;
 
-  @Column('mediumint', {
+  @Property({
     name: 'grp_members',
     unsigned: true,
-    default: () => "'1'",
+    type: 'mediumint',
+    default: "'1'",
   })
   memberCount!: number;
 
-  @Column('text', { name: 'grp_desc' })
+  @Property({ name: 'grp_desc', type: 'text' })
   description!: string;
 
-  @Column('int', { name: 'grp_lastpost', unsigned: true })
+  @Property({ name: 'grp_lastpost', unsigned: true, type: 'int' })
   lastPost!: number;
 
-  @Column('int', { name: 'grp_builddate', unsigned: true })
+  @Property({ name: 'grp_builddate', unsigned: true, type: 'int' })
   builddate!: number;
 
-  @Column('tinyint', {
+  @Property({
     name: 'grp_accessible',
     comment: '可访问性',
-    width: 1,
-    default: () => "'1'",
+    default: "'1'",
+    type: 'tinyint',
   })
   accessible!: boolean;
 
-  @Column('tinyint', {
+  @Property({
     name: 'grp_nsfw',
     unsigned: true,
-    transformer: BooleanTransformer,
+    columnType: 'tinyint',
+    type: BooleanTransformer,
   })
   nsfw!: boolean;
 }
 
-@Entity('chii_group_members', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_group_members' })
 export class GroupMembers {
-  @Column('mediumint', { primary: true, name: 'gmb_uid', default: () => "'0'" })
+  @Property({ primary: true, name: 'gmb_uid', default: "'0'", type: 'mediumint' })
   gmbUid!: number;
 
-  @Column('smallint', { primary: true, name: 'gmb_gid', default: () => "'0'" })
+  @Property({ primary: true, name: 'gmb_gid', default: "'0'", type: 'smallint' })
   gmbGid!: number;
 
-  @Column('tinyint', { name: 'gmb_moderator', width: 1, default: () => "'0'" })
+  @Property({ name: 'gmb_moderator', default: "'0'", type: 'tinyint' })
   gmbModerator!: boolean;
 
-  @Column('int', { name: 'gmb_dateline', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'gmb_dateline', unsigned: true, default: "'0'", type: 'int' })
   gmbDateline!: number;
 }
 
-@Index('grp_tpc_gid', ['parentID'], {})
-@Index('grp_tpc_display', ['display'], {})
-@Index('grp_tpc_uid', ['creatorID'], {})
-@Index('grp_tpc_lastpost', ['updatedAt'], {})
-@Entity('chii_group_topics', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_group_topics' })
 export class GroupTopic {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: 'mediumint',
     name: 'grp_tpc_id',
     unsigned: true,
   })
   id!: number;
 
-  @Column('mediumint', { name: 'grp_tpc_gid', unsigned: true })
+  @Property({ name: 'grp_tpc_gid', unsigned: true, type: 'mediumint' })
   parentID!: number;
 
-  @Column('mediumint', { name: 'grp_tpc_uid', unsigned: true })
+  @Property({ name: 'grp_tpc_uid', unsigned: true, type: 'mediumint' })
   creatorID!: number;
 
-  @Column('varchar', { name: 'grp_tpc_title', length: 80, transformer: htmlEscapedString })
+  @Property({
+    name: 'grp_tpc_title',
+    length: 80,
+    type: htmlEscapedString,
+    columnType: 'varchar',
+  })
   title!: string;
 
-  @Column('int', {
+  @Property({
+    type: 'int',
     name: 'grp_tpc_dateline',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   createdAt!: number;
 
-  @Column('int', {
+  @Property({
+    type: 'int',
     name: 'grp_tpc_lastpost',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   updatedAt!: number;
 
-  @Column('mediumint', {
+  @Property({
+    type: 'mediumint',
+
     name: 'grp_tpc_replies',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   replies!: number;
 
-  @Column('tinyint', { name: 'grp_tpc_state', unsigned: true })
+  @Property({ name: 'grp_tpc_state', unsigned: true, type: 'tinyint' })
   state!: number;
 
-  @Column('tinyint', {
+  @Property({
+    type: 'tinyint',
+
     name: 'grp_tpc_display',
     unsigned: true,
-    default: () => "'1'",
+    default: "'1'",
   })
   display!: number;
 
   creator!: User;
 }
 
-@Index('pss_topic_id', ['topicID'], {})
-@Index('grp_pst_related', ['related'], {})
-@Index('grp_pst_uid', ['uid'], {})
-@Entity('chii_group_posts', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_group_posts' })
 export class GroupPost {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: 'mediumint',
     name: 'grp_pst_id',
     unsigned: true,
   })
   id!: number;
 
-  @Column('mediumint', { name: 'grp_pst_mid', unsigned: true })
+  @Property({ name: 'grp_pst_mid', unsigned: true, type: 'mediumint' })
   topicID!: number;
 
-  @Column('mediumint', { name: 'grp_pst_uid', unsigned: true })
+  @Property({ name: 'grp_pst_uid', unsigned: true, type: 'mediumint' })
   uid!: number;
 
-  @Column('mediumint', {
+  @Property({
+    type: 'mediumint',
+
     name: 'grp_pst_related',
     comment: '关联回复ID',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   related!: number;
 
-  @Column('mediumtext', { name: 'grp_pst_content' })
+  @Property({ name: 'grp_pst_content', type: 'mediumtext' })
   content!: string;
 
-  @Column('tinyint', { name: 'grp_pst_state', unsigned: true })
+  @Property({ name: 'grp_pst_state', unsigned: true, type: 'tinyint' })
   state!: number;
 
-  @Column('int', {
+  @Property({
+    type: 'int',
+
     name: 'grp_pst_dateline',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   dateline!: number;
 

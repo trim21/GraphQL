@@ -1,98 +1,109 @@
-import { Column, Entity, Index, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-
 import type { Person } from './person.ts';
 import type { Subject } from './subject.ts';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
-@Index('crt_role', ['role'], {})
-@Index('crt_lock', ['lock'], {})
-@Index('crt_ban', ['ban'], {})
-@Entity('chii_characters', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_characters' })
 export class Character {
-  @PrimaryGeneratedColumn({ type: 'mediumint', name: 'crt_id', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', name: 'crt_id', unsigned: true })
   id!: number;
 
-  @Column('varchar', { name: 'crt_name', length: 255 })
+  @Property({ name: 'crt_name', length: 255, columnType: 'varchar', type: String })
   name!: string;
 
-  @Column('tinyint', {
+  @Property({
     name: 'crt_role',
     comment: '角色，机体，组织。。',
+    columnType: 'tinyint',
     unsigned: true,
+    type: Number,
   })
   role!: number;
 
-  @Column('mediumtext', { name: 'crt_infobox' })
+  @Property({ name: 'crt_infobox', columnType: 'mediumtext', type: String })
   infobox!: string;
 
-  @Column('mediumtext', { name: 'crt_summary' })
+  @Property({ name: 'crt_summary', columnType: 'mediumtext', type: String })
   summary!: string;
 
-  @Column('varchar', { name: 'crt_img', length: 255 })
+  @Property({ name: 'crt_img', length: 255, columnType: 'varchar', type: String })
   img!: string;
 
-  @Column('mediumint', {
+  @Property({
     name: 'crt_comment',
+    columnType: 'mediumint',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
+    type: Number,
   })
   comment!: number;
 
-  @Column('mediumint', { name: 'crt_collects', unsigned: true })
+  @Property({ name: 'crt_collects', unsigned: true, columnType: 'mediumint', type: Number })
   collects!: number;
 
-  @Column('int', { name: 'crt_dateline', unsigned: true })
+  @Property({ name: 'crt_dateline', unsigned: true, columnType: 'int', type: Number })
   updatedAt!: number;
 
-  @Column('int', { name: 'crt_lastpost', unsigned: true })
+  @Property({ name: 'crt_lastpost', unsigned: true, columnType: 'int', type: Number })
   lastPost!: number;
 
-  @Column('tinyint', { name: 'crt_lock', default: () => "'0'" })
+  @Property({ name: 'crt_lock', default: "'0'", columnType: 'tinyint', type: Number })
   lock!: number;
 
-  @Column('varchar', { name: 'crt_img_anidb', length: 255 })
+  @Property({ name: 'crt_img_anidb', length: 255, columnType: 'varchar', type: String })
   imgAnidb!: string;
 
-  @Column('mediumint', { name: 'crt_anidb_id', unsigned: true })
+  @Property({ name: 'crt_anidb_id', unsigned: true, columnType: 'mediumint', type: Number })
   anidbID!: number;
 
-  @Column('tinyint', { name: 'crt_ban', unsigned: true, default: () => "'0'" })
+  @Property({
+    name: 'crt_ban',
+    unsigned: true,
+    default: "'0'",
+    columnType: 'tinyint',
+    type: Number,
+  })
   ban!: number;
 
-  @Column('int', { name: 'crt_redirect', unsigned: true, default: () => "'0'" })
+  @Property({
+    name: 'crt_redirect',
+    unsigned: true,
+    default: "'0'",
+    columnType: 'int',
+    type: Number,
+  })
   redirect!: number;
 
-  @Column('tinyint', { name: 'crt_nsfw', unsigned: true, width: 1 })
+  @Property({ name: 'crt_nsfw', unsigned: true, columnType: 'tinyint', type: Boolean })
   nsfw!: boolean;
 }
 
-@Index('subject_id', ['subjectID'], {})
-@Index('crt_type', ['type'], {})
-@Index('subject_type_id', ['subjectTypeID'], {})
-@Entity('chii_crt_subject_index', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_crt_subject_index' })
 export class CharacterSubjects {
-  @PrimaryColumn('mediumint', { primary: true, name: 'crt_id', unsigned: true })
+  @PrimaryKey({ primary: true, name: 'crt_id', unsigned: true, type: 'mediumint' })
   characterID!: number;
 
-  @PrimaryColumn('mediumint', { primary: true, name: 'subject_id', unsigned: true })
+  @PrimaryKey({ primary: true, name: 'subject_id', unsigned: true, type: 'mediumint' })
   subjectID!: number;
 
-  @Column('tinyint', { name: 'subject_type_id', unsigned: true })
+  @Property({ name: 'subject_type_id', unsigned: true, type: 'tinyint' })
   subjectTypeID!: number;
 
-  @Column('tinyint', {
+  @Property({
     name: 'crt_type',
     comment: '主角，配角',
+    type: 'tinyint',
     unsigned: true,
   })
   type!: number;
 
-  // @Column('mediumtext', {
+  // @Property({columnType: 'mediumtext',
+
   //   name: 'ctr_appear_eps',
   //   comment: '可选，角色出场的的章节',
   // })
   // appearEps: string;
 
-  @Column('tinyint', { name: 'crt_order', unsigned: true })
+  @Property({ name: 'crt_order', unsigned: true, type: 'tinyint' })
   order!: number;
 
   character!: Character;
@@ -100,31 +111,50 @@ export class CharacterSubjects {
   subject!: Subject;
 }
 
-@Index('prsn_id', ['personID'], {})
-@Index('subject_id', ['subjectID'], {})
-@Index('subject_type_id', ['subjectTypeID'], {})
-@Entity('chii_crt_cast_index', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_crt_cast_index' })
 export class Cast {
-  @PrimaryColumn('mediumint', { primary: true, name: 'crt_id', unsigned: true })
+  @PrimaryKey({
+    columnType: 'mediumint',
+    primary: true,
+    name: 'crt_id',
+    unsigned: true,
+    type: Number,
+  })
   characterID!: number;
 
-  @PrimaryColumn('mediumint', { primary: true, name: 'prsn_id', unsigned: true })
+  @PrimaryKey({
+    columnType: 'mediumint',
+    primary: true,
+    name: 'prsn_id',
+    unsigned: true,
+    type: Number,
+  })
   personID!: number;
 
-  @PrimaryColumn('mediumint', { primary: true, name: 'subject_id', unsigned: true })
+  @PrimaryKey({
+    columnType: 'mediumint',
+    primary: true,
+    name: 'subject_id',
+    unsigned: true,
+    type: Number,
+  })
   subjectID!: number;
 
-  @Column('tinyint', {
+  @Property({
     name: 'subject_type_id',
     comment: '根据人物归类查询角色，动画，书籍，游戏',
+    columnType: 'tinyint',
     unsigned: true,
+    type: Number,
   })
   subjectTypeID!: number;
 
-  @Column('varchar', {
+  @Property({
     name: 'summary',
+    columnType: 'varchar',
     comment: '幼年，男乱马，女乱马，变身形态，少女形态。。',
     length: 255,
+    type: String,
   })
   summary!: string;
 

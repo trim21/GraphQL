@@ -1,40 +1,37 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
-@Index('app_type', ['appType', 'appCreator'], {})
-@Index('app_ban', ['appBan'], {})
-@Index('app_status', ['appStatus'], {})
-@Entity('chii_apps', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_apps' })
 export class App {
-  @PrimaryGeneratedColumn({ type: 'mediumint', name: 'app_id' })
+  @PrimaryKey({ columnType: 'mediumint', name: 'app_id', autoincrement: true, type: Number })
   appID!: number;
 
-  @Column('tinyint', { name: 'app_type', width: 1 })
+  @Property({ name: 'app_type', columnType: 'tinyint', type: Boolean })
   appType!: boolean;
 
-  @Column('mediumint', { name: 'app_creator' })
+  @Property({ name: 'app_creator', columnType: 'mediumint', type: Number })
   appCreator!: number;
 
-  @Column('varchar', { name: 'app_name', length: 255 })
+  @Property({ name: 'app_name', length: 255, columnType: 'varchar', type: String })
   appName!: string;
 
-  @Column('mediumtext', { name: 'app_desc' })
+  @Property({ name: 'app_desc', columnType: 'mediumtext', type: String })
   appDesc!: string;
 
-  @Column('varchar', { name: 'app_url', length: 2000 })
+  @Property({ name: 'app_url', length: 2000, columnType: 'varchar', type: String })
   appUrl!: string;
 
-  @Column('mediumint', { name: 'app_collects' })
+  @Property({ name: 'app_collects', columnType: 'mediumint', type: Number })
   appCollects!: number;
 
-  @Column('tinyint', { name: 'app_status', width: 1 })
+  @Property({ name: 'app_status', columnType: 'tinyint', type: Boolean })
   appStatus!: boolean;
 
-  @Column('int', { name: 'app_timestamp' })
+  @Property({ name: 'app_timestamp', columnType: 'int', type: Number })
   appTimestamp!: number;
 
-  @Column('int', { name: 'app_lasttouch' })
+  @Property({ name: 'app_lasttouch', columnType: 'int', type: Number })
   appLasttouch!: number;
 
-  @Column('tinyint', { name: 'app_ban', width: 1 })
+  @Property({ name: 'app_ban', columnType: 'tinyint', type: Boolean })
   appBan!: boolean;
 }

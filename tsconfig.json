@@ -11,6 +11,7 @@
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "strict": true,
+    "emitDecoratorMetadata": true,
     "lib": ["ES2022"],
     "skipLibCheck": true,
     "strictNullChecks": true,

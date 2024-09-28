@@ -2,7 +2,7 @@ import { promisify } from 'node:util';
 import * as zlib from 'node:zlib';
 
 import * as php from '@trim21/php-serialize';
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
 const inflateRaw = promisify(zlib.inflateRaw);
 const deflateRaw = promisify(zlib.deflateRaw);
@@ -37,10 +37,7 @@ const TypeEpErase = 185;
 
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
-@Index('rev_crt_id', ['revType', 'revMid'], {})
-@Index('rev_crt_creator', ['revCreator'], {})
-@Index('rev_id', ['revId', 'revType', 'revCreator'], {})
-@Entity('chii_rev_history', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_rev_history' })
 export class RevHistory {
   static readonly TypeEp = TypeEp;
 
@@ -53,46 +50,48 @@ export class RevHistory {
     TypeEpErase,
   ] as const;
 
-  @PrimaryGeneratedColumn({ type: 'mediumint', name: 'rev_id', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', name: 'rev_id', unsigned: true })
   revId!: number;
 
-  @Column('tinyint', {
+  @Property({
+    type: 'tinyint',
     name: 'rev_type',
     comment: '条目，角色，人物',
     unsigned: true,
   })
   revType!: number;
 
-  @Column('mediumint', {
+  @Property({
+    type: 'mediumint',
     name: 'rev_mid',
     comment: '对应条目，人物的ID',
     unsigned: true,
   })
   revMid!: number;
 
-  @Column('mediumint', { name: 'rev_text_id', unsigned: true })
+  @Property({ name: 'rev_text_id', unsigned: true, type: 'mediumint' })
   revTextId!: number;
 
-  @Column('int', { name: 'rev_dateline', unsigned: true })
+  @Property({ name: 'rev_dateline', unsigned: true, type: 'int' })
   revDateline!: number;
 
-  @Column('mediumint', { name: 'rev_creator', unsigned: true })
+  @Property({ name: 'rev_creator', unsigned: true, type: 'mediumint' })
   revCreator!: number;
 
-  @Column('varchar', { name: 'rev_edit_summary', length: 200 })
+  @Property({ name: 'rev_edit_summary', length: 200, type: 'varchar' })
   revEditSummary!: string;
 }
 
-@Entity('chii_rev_text', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_rev_text' })
 export class RevText {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: 'mediumint',
     name: 'rev_text_id',
     unsigned: true,
   })
   revTextId!: number;
 
-  @Column('mediumblob', { name: 'rev_text' })
+  @Property({ name: 'rev_text', columnType: 'mediumblob', type: Buffer })
   revText!: Buffer;
 
   static async parse<R = unknown>(
@@ -122,39 +121,39 @@ export class RevText {
   }
 }
 
-@Index('rev_sid', ['revSid', 'revCreator'], {})
-@Entity('chii_ep_revisions', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_ep_revisions' })
 export class EpRevision {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: 'mediumint',
     name: 'ep_rev_id',
     unsigned: true,
   })
   epRevId!: number;
 
-  @Column('mediumint', { name: 'rev_sid', unsigned: true })
+  @Property({ name: 'rev_sid', unsigned: true, type: 'mediumint' })
   revSid!: number;
 
-  @Column('varchar', { name: 'rev_eids', length: 255 })
+  @Property({ name: 'rev_eids', length: 255, type: 'varchar' })
   revEids!: string;
 
-  @Column('mediumtext', { name: 'rev_ep_infobox' })
+  @Property({ name: 'rev_ep_infobox', type: 'mediumtext' })
   revEpInfobox!: string;
 
-  @Column('mediumint', { name: 'rev_creator', unsigned: true })
+  @Property({ name: 'rev_creator', unsigned: true, type: 'mediumint' })
   revCreator!: number;
 
-  @Column('tinyint', {
+  @Property({
+    type: 'tinyint',
     name: 'rev_version',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   revVersion!: number;
 
-  @Column('int', { name: 'rev_dateline', unsigned: true })
+  @Property({ name: 'rev_dateline', unsigned: true, type: 'int' })
   revDateline!: number;
 
-  @Column('varchar', { name: 'rev_edit_summary', length: 200 })
+  @Property({ name: 'rev_edit_summary', length: 200, type: 'varchar' })
   revEditSummary!: string;
 }
 

@@ -1,122 +1,116 @@
-import { Column, Entity, Index, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import type { Subject } from './subject.ts';
 
-@Index('prsn_type', ['type'], {})
-@Index('prsn_producer', ['producer'], {})
-@Index('prsn_mangaka', ['mangaka'], {})
-@Index('prsn_artist', ['artist'], {})
-@Index('prsn_seiyu', ['seiyu'], {})
-@Index('prsn_writer', ['writer'], {})
-@Index('prsn_illustrator', ['illustrator'], {})
-@Index('prsn_lock', ['lock'], {})
-@Index('prsn_ban', ['ban'], {})
-@Index('prsn_actor', ['actor'], {})
-@Entity('chii_persons', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_persons' })
 export class Person {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: 'mediumint',
     name: 'prsn_id',
     unsigned: true,
   })
   id!: number;
 
-  @Column('varchar', { name: 'prsn_name', length: 255 })
+  @Property({ name: 'prsn_name', length: 255, type: 'varchar' })
   name!: string;
 
-  @Column('tinyint', {
+  @Property({
+    type: 'tinyint',
     name: 'prsn_type',
     comment: '个人，公司，组合',
     unsigned: true,
   })
   type!: number;
 
-  @Column('mediumtext', { name: 'prsn_infobox' })
+  @Property({ name: 'prsn_infobox', type: 'mediumtext' })
   infobox!: string;
 
-  @Column('tinyint', { name: 'prsn_producer', width: 1 })
+  @Property({ name: 'prsn_producer', type: 'tinyint' })
   producer!: boolean;
 
-  @Column('tinyint', { name: 'prsn_mangaka', width: 1 })
+  @Property({ name: 'prsn_mangaka', type: 'tinyint' })
   mangaka!: boolean;
 
-  @Column('tinyint', { name: 'prsn_artist', width: 1 })
+  @Property({ name: 'prsn_artist', type: 'tinyint' })
   artist!: boolean;
 
-  @Column('tinyint', { name: 'prsn_seiyu', width: 1 })
+  @Property({ name: 'prsn_seiyu', type: 'tinyint' })
   seiyu!: boolean;
 
-  @Column('tinyint', {
+  @Property({
+    type: 'tinyint',
+
     name: 'prsn_writer',
     comment: '作家',
-    default: () => "'0'",
+    default: "'0'",
   })
   writer!: boolean;
 
-  @Column('tinyint', {
+  @Property({
+    type: 'tinyint',
+
     name: 'prsn_illustrator',
     comment: '绘师',
-    default: () => "'0'",
+    default: "'0'",
   })
   illustrator!: boolean;
 
-  @Column('tinyint', { name: 'prsn_actor', comment: '演员', width: 1 })
+  @Property({ name: 'prsn_actor', comment: '演员', type: 'tinyint' })
   actor!: boolean;
 
-  @Column('mediumtext', { name: 'prsn_summary' })
+  @Property({ name: 'prsn_summary', type: 'mediumtext' })
   summary!: string;
 
-  @Column('varchar', { name: 'prsn_img', length: 255 })
+  @Property({ name: 'prsn_img', length: 255, type: 'varchar' })
   img!: string;
 
-  @Column('varchar', { name: 'prsn_img_anidb', length: 255 })
+  @Property({ name: 'prsn_img_anidb', length: 255, type: 'varchar' })
   imgAnidb!: string;
 
-  @Column('mediumint', { name: 'prsn_comment', unsigned: true })
+  @Property({ name: 'prsn_comment', unsigned: true, type: 'mediumint' })
   comment!: number;
 
-  @Column('mediumint', { name: 'prsn_collects', unsigned: true })
+  @Property({ name: 'prsn_collects', unsigned: true, type: 'mediumint' })
   collects!: number;
 
-  @Column('int', { name: 'prsn_dateline', unsigned: true })
+  @Property({ name: 'prsn_dateline', unsigned: true, type: 'int' })
   updatedAt!: number;
 
-  @Column('int', { name: 'prsn_lastpost', unsigned: true })
+  @Property({ name: 'prsn_lastpost', unsigned: true, type: 'int' })
   lastPost!: number;
 
-  @Column('tinyint', { name: 'prsn_lock' })
+  @Property({ name: 'prsn_lock', type: 'tinyint' })
   lock!: number;
 
-  @Column('mediumint', { name: 'prsn_anidb_id', unsigned: true })
+  @Property({ name: 'prsn_anidb_id', unsigned: true, type: 'mediumint' })
   anidbID!: number;
 
-  @Column('tinyint', { name: 'prsn_ban', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'prsn_ban', unsigned: true, default: "'0'", type: 'tinyint' })
   ban!: number;
 
-  @Column('int', {
+  @Property({
+    type: 'int',
+
     name: 'prsn_redirect',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   redirect!: number;
 
-  @Column('tinyint', { name: 'prsn_nsfw', unsigned: true, width: 1 })
+  @Property({ name: 'prsn_nsfw', unsigned: true, type: 'tinyint' })
   nsfw!: boolean;
 }
 
-@Index('subject_id', ['subjectID'], {})
-@Index('prsn_position', ['position'], {})
-@Index('prsn_id', ['personID'], {})
-@Index('subject_type_id', ['subjectTypeID'], {})
-@Entity('chii_person_cs_index', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_person_cs_index' })
 export class PersonSubjects {
   // @Column("enum", { primary: true, name: "prsn_type", enum: ["prsn", "crt"] })
   // personType: "prsn" | "crt";
 
-  @PrimaryColumn('mediumint', { primary: true, name: 'prsn_id', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', primary: true, name: 'prsn_id', unsigned: true })
   personID!: number;
 
-  @Column('smallint', {
+  @Property({
+    type: 'smallint',
+
     primary: true,
     name: 'prsn_position',
     comment: '监督，原案，脚本,..',
@@ -124,16 +118,17 @@ export class PersonSubjects {
   })
   position!: number;
 
-  @PrimaryColumn('mediumint', { primary: true, name: 'subject_id', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', primary: true, name: 'subject_id', unsigned: true })
   subjectID!: number;
 
-  @Column('tinyint', { name: 'subject_type_id', unsigned: true })
+  @Property({ name: 'subject_type_id', unsigned: true, type: 'tinyint' })
   subjectTypeID!: number;
 
-  @Column('mediumtext', { name: 'summary' })
+  @Property({ name: 'summary', type: 'mediumtext' })
   summary!: string;
 
-  // @Column('mediumtext', {
+  // @Property({type: 'mediumtext',
+
   //   name: 'prsn_appear_eps',
   //   comment: '可选，人物参与的章节',
   // })

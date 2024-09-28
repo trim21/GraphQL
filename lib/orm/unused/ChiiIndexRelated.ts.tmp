@@ -1,13 +1,13 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryKey } from "typeorm";
 
-@Index("idx_rlt_rid", ["idxRltRid", "idxRltType"], {})
-@Index("idx_rlt_sid", ["idxRltRid", "idxRltSid"], {})
-@Index("idx_rlt_sid_2", ["idxRltSid"], {})
-@Index("idx_rlt_cat", ["idxRltCat"], {})
-@Index("idx_order", ["idxRltRid", "idxRltCat", "idxRltOrder", "idxRltSid"], {})
+
+
+
+
+
 @Entity("chii_index_related", { schema: "bangumi" })
 export class ChiiIndexRelated {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: "mediumint",
     name: "idx_rlt_id",
     unsigned: true,
@@ -41,7 +41,7 @@ export class ChiiIndexRelated {
   @Column("mediumint", {
     name: "idx_rlt_order",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   idxRltOrder: number;
 

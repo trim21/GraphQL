@@ -1,11 +1,11 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryKey } from "typeorm";
 
-@Index("idx_pst_mid", ["idxPstMid"], {})
-@Index("idx_pst_related", ["idxPstRelated"], {})
-@Index("idx_pst_uid", ["idxPstUid"], {})
+
+
+
 @Entity("chii_index_comments", { schema: "bangumi" })
 export class ChiiIndexComments {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: "mediumint",
     name: "idx_pst_id",
     unsigned: true,
@@ -21,7 +21,7 @@ export class ChiiIndexComments {
   @Column("mediumint", {
     name: "idx_pst_related",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   idxPstRelated: number;
 

@@ -4,7 +4,6 @@ import * as process from 'node:process';
 
 import config, { production } from '@app/lib/config.ts';
 import { logger } from '@app/lib/logger.ts';
-import { AppDataSource } from '@app/lib/orm/index.ts';
 import { Subscriber } from '@app/lib/redis.ts';
 import { createServer } from '@app/lib/server.ts';
 
@@ -24,7 +23,7 @@ const server = await createServer({
 });
 
 server.addHook('onReady', async () => {
-  await Promise.all([Subscriber.psubscribe(`event-user-notify-*`), AppDataSource.initialize()]);
+  await Promise.all([Subscriber.psubscribe(`event-user-notify-*`)]);
 });
 
 const { host, port } = config.server;

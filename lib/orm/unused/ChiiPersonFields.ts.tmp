@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 
-@Index("prsn_id", ["prsnId"], {})
+
 @Entity("chii_person_fields", { schema: "bangumi" })
 export class ChiiPersonFields {
   @Column("enum", { primary: true, name: "prsn_cat", enum: ["prsn", "crt"] })

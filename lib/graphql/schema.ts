@@ -58,12 +58,12 @@ export const resolvers = {
     subject: subjectResolver,
 
     async person(_parent, { id }: { id: number }, { auth: { allowNsfw } }: Context) {
-      let query = PersonRepo.createQueryBuilder('c').where('c.id = :id', { id });
+      let query = PersonRepo.createQueryBuilder('c').where('c.id = ?', [id]);
       if (!allowNsfw) {
-        query = query.andWhere('c.nsfw = :allowNsfw', { allowNsfw });
+        query = query.andWhere('c.nsfw = ?', [allowNsfw]);
       }
       query = query.andWhere('c.ban = 0');
-      const person = await query.getOne();
+      const person = await query.getSingleResult();
       if (!person) {
         return null;
       }
@@ -71,12 +71,12 @@ export const resolvers = {
     },
 
     async character(_parent, { id }: { id: number }, { auth: { allowNsfw } }: Context) {
-      let query = CharacterRepo.createQueryBuilder('c').where('c.id = :id', { id });
+      let query = CharacterRepo.createQueryBuilder('c').where('c.id = ?', [id]);
       if (!allowNsfw) {
-        query = query.andWhere('c.nsfw = :allowNsfw', { allowNsfw });
+        query = query.andWhere('c.nsfw = ?', [allowNsfw]);
       }
       query = query.andWhere('c.ban = 0');
-      const character = await query.getOne();
+      const character = await query.getSingleResult();
       if (!character) {
         return null;
       }
@@ -104,19 +104,19 @@ export const resolvers = {
 
       if (offset < 0) {
         const count = await repo.Episode.createQueryBuilder('t')
-          .where('t.subjectID = :s', { s: parent.id })
+          .where('t.subjectID = ?', [parent.id])
           .getCount();
 
         offset = count + offset;
       }
 
       let s = repo.Episode.createQueryBuilder('t')
-        .select()
-        .where('t.subjectID = :s', { s: parent.id });
+        .select('*')
+        .where('t.subjectID = ?', [parent.id]);
       if (type) {
-        s = s.andWhere('t.type = :t', { t: type });
+        s = s.andWhere('t.type = ?', [type]);
       }
-      const episodes = await s.orderBy('t.sort', 'ASC').limit(limit).offset(offset).getMany();
+      const episodes = await s.orderBy({ 't.sort': 'ASC' }).limit(limit).offset(offset).execute();
 
       return episodes.map((e: entity.Episode) => {
         return {
@@ -141,13 +141,17 @@ export const resolvers = {
       { auth: u }: Context,
     ) {
       let query = SubjectTopicRepo.createQueryBuilder('t')
-        .innerJoinAndMapOne('t.creator', entity.User, 'u', 'u.id = t.creatorID')
-        .where('t.parentID = :id', { id: parent.id });
+        .innerJoin('t.creator', 'u', { 'u.id': 't.creatorID' })
+        .where('t.parentID = ?', [parent.id]);
       const displays = ListTopicDisplays(u);
       if (displays.length > 0) {
-        query = query.andWhere('t.display IN (:...displays)', { displays });
+        query = query.andWhere('t.display IN (?)', [displays]);
       }
-      const topics = await query.orderBy('t.createdAt', 'DESC').skip(offset).take(limit).getMany();
+      const topics = await query
+        .orderBy({ 't.createdAt': 'DESC' })
+        .offset(offset)
+        .limit(limit)
+        .execute();
       return topics.map((t) => {
         return convertTopic(t);
       });
@@ -159,12 +163,16 @@ export const resolvers = {
       { auth: { allowNsfw } }: Context,
     ) {
       let query = PersonSubjectsRepo.createQueryBuilder('r')
-        .innerJoinAndMapOne('r.person', entity.Person, 'p', 'p.id = r.personID')
-        .where('r.subjectID = :id', { id: parent.id });
+        .innerJoin('r.person', 'p', { 'p.id': 'r.personID' })
+        .where('r.subjectID = ?', [parent.id]);
       if (!allowNsfw) {
-        query = query.andWhere('p.nsfw = :allowNsfw', { allowNsfw });
+        query = query.andWhere('p.nsfw = ?', [allowNsfw]);
       }
-      const relations = await query.orderBy('r.position', 'ASC').skip(offset).take(limit).getMany();
+      const relations = await query
+        .orderBy({ 'r.position': 'ASC' })
+        .offset(offset)
+        .limit(limit)
+        .execute();
       return relations.map((r) => {
         return {
           person: convertPerson(r.person),
@@ -179,17 +187,17 @@ export const resolvers = {
       { auth: { allowNsfw } }: Context,
     ) {
       let query = CharacterSubjectsRepo.createQueryBuilder('r')
-        .innerJoinAndMapOne('r.character', entity.Character, 'c', 'c.id = r.characterID')
-        .where('r.subjectID = :id', { id: parent.id });
+        .innerJoin('r.character', 'c', { 'c.id': 'r.characterID' })
+        .where('r.subjectID = ?', [parent.id]);
       if (!allowNsfw) {
-        query = query.andWhere('c.nsfw = :allowNsfw', { allowNsfw });
+        query = query.andWhere('c.nsfw = ?', [allowNsfw]);
       }
       const relations = await query
-        .orderBy('r.type', 'ASC')
-        .orderBy('r.order', 'ASC')
-        .skip(offset)
-        .take(limit)
-        .getMany();
+        .orderBy({ 'r.type': 'ASC' })
+        .orderBy({ 'r.order': 'ASC' })
+        .offset(offset)
+        .limit(limit)
+        .execute();
       return relations.map((r) => {
         return {
           character: convertCharacter(r.character),
@@ -205,25 +213,25 @@ export const resolvers = {
       { auth: { allowNsfw } }: Context,
     ): Promise<types.SubjectRelation[]> {
       let query = SubjectRelationRepo.createQueryBuilder('r')
-        .innerJoinAndMapOne('r.relatedSubject', entity.Subject, 's', 's.id = r.relatedSubjectID')
-        .innerJoinAndMapOne('s.fields', entity.SubjectFields, 'f', 'f.subjectID = s.id')
-        .where('r.subjectID = :id', { id: parent.id });
+        .innerJoin('r.relatedSubject', 's', { 's.id': 'r.relatedSubjectID' })
+        .innerJoin('s.fields', 'f', { 'f.subjectID': 's.id' })
+        .where('r.subjectID = ?', [parent.id]);
       if (includeTypes && includeTypes.length > 0) {
-        query = query.andWhere('r.relationType IN (:...includeTypes)', { includeTypes });
+        query = query.andWhere('r.relationType IN (?)', [includeTypes]);
       }
       if (excludeTypes && excludeTypes.length > 0) {
-        query = query.andWhere('r.relationType NOT IN (:...excludeTypes)', { excludeTypes });
+        query = query.andWhere('r.relationType NOT IN (?)', [excludeTypes]);
       }
       if (!allowNsfw) {
-        query = query.andWhere('s.subjectNsfw = :allowNsfw', { allowNsfw });
+        query = query.andWhere('s.subjectNsfw = ?', [allowNsfw]);
       }
       const relations = await query
-        .orderBy('r.relationType', 'ASC')
-        .orderBy('r.order', 'ASC')
-        .orderBy('r.relatedSubjectID', 'ASC')
-        .skip(offset)
-        .take(limit)
-        .getMany();
+        .orderBy({ 'r.relationType': 'ASC' })
+        .orderBy({ 'r.order': 'ASC' })
+        .orderBy({ 'r.relatedSubjectID': 'ASC' })
+        .offset(offset)
+        .limit(limit)
+        .execute();
       return relations.map((r: entity.SubjectRelation) => {
         return {
           subject: convertSubject(r.relatedSubject),
@@ -240,18 +248,18 @@ export const resolvers = {
       { auth: { allowNsfw } }: Context,
     ) {
       let query = CharacterSubjectsRepo.createQueryBuilder('r')
-        .innerJoinAndMapOne('r.subject', entity.Subject, 's', 's.id = r.subjectID')
-        .innerJoinAndMapOne('s.fields', entity.SubjectFields, 'f', 'f.subjectID = s.id')
-        .where('r.characterID = :id', { id: parent.id });
+        .innerJoin('r.subject', 's', { 's.id': 'r.subjectID' })
+        .innerJoin('s.fields', 'f', { 'f.subjectID': 's.id' })
+        .where('r.characterID = ?', [parent.id]);
       if (!allowNsfw) {
-        query = query.andWhere('s.subjectNsfw = :allowNsfw', { allowNsfw });
+        query = query.andWhere('s.subjectNsfw = ?', [allowNsfw]);
       }
       const relations = await query
-        .orderBy('r.type', 'ASC')
-        .orderBy('r.order', 'ASC')
-        .skip(offset)
-        .take(limit)
-        .getMany();
+        .orderBy({ 'r.type': 'ASC' })
+        .orderBy({ 'r.order': 'ASC' })
+        .offset(offset)
+        .limit(limit)
+        .execute();
       return relations.map((r) => ({
         subject: convertSubject(r.subject),
         type: r.type,
@@ -264,14 +272,14 @@ export const resolvers = {
       { auth: { allowNsfw } }: Context,
     ) {
       const query = CastRepo.createQueryBuilder('r')
-        .innerJoinAndMapOne('r.person', entity.Person, 'p', 'p.id = r.personID')
-        .innerJoinAndMapOne('r.subject', entity.Subject, 's', 's.id = r.subjectID')
-        .innerJoinAndMapOne('s.fields', entity.SubjectFields, 'f', 'f.subjectID = s.id')
-        .where('r.characterID = :id', { id: parent.id });
+        .innerJoin('r.person', 'p', { 'p.id': 'r.personID' })
+        .innerJoin('r.subject', 's', { 's.id': 'r.subjectID' })
+        .innerJoin('s.fields', 'f', { 'f.subjectID': 's.id' })
+        .where('r.characterID = ?', [parent.id]);
       if (!allowNsfw) {
-        query.andWhere('s.subjectNsfw = :allowNsfw', { allowNsfw });
+        query.andWhere('s.subjectNsfw = ?', [allowNsfw]);
       }
-      const relations = await query.skip(offset).take(limit).getMany();
+      const relations = await query.offset(offset).limit(limit).execute();
       return relations.map((r) => ({
         person: convertPerson(r.person),
         subject: convertSubject(r.subject),
@@ -286,14 +294,14 @@ export const resolvers = {
       { auth: { allowNsfw } }: Context,
     ) {
       const query = CastRepo.createQueryBuilder('r')
-        .innerJoinAndMapOne('r.character', entity.Character, 'c', 'c.id = r.characterID')
-        .innerJoinAndMapOne('r.subject', entity.Subject, 's', 's.id = r.subjectID')
-        .innerJoinAndMapOne('s.fields', entity.SubjectFields, 'f', 'f.subjectID = s.id')
-        .where('r.personID = :id', { id: parent.id });
+        .innerJoin('r.character', 'c', { 'c.id': 'r.characterID' })
+        .innerJoin('r.subject', 's', { 's.id': 'r.subjectID' })
+        .innerJoin('s.fields', 'f', { 'f.subjectID': 's.id' })
+        .where('r.personID = ?', [parent.id]);
       if (!allowNsfw) {
-        query.andWhere('s.subjectNsfw = :allowNsfw', { allowNsfw });
+        query.andWhere('s.subjectNsfw = ?', [allowNsfw]);
       }
-      const relations = await query.skip(offset).take(limit).getMany();
+      const relations = await query.offset(offset).limit(limit).execute();
       return relations.map((r) => ({
         character: convertCharacter(r.character),
         subject: convertSubject(r.subject),
@@ -307,13 +315,17 @@ export const resolvers = {
       { auth: { allowNsfw } }: Context,
     ) {
       let query = PersonSubjectsRepo.createQueryBuilder('r')
-        .innerJoinAndMapOne('r.subject', entity.Subject, 's', 's.id = r.subjectID')
-        .innerJoinAndMapOne('s.fields', entity.SubjectFields, 'f', 'f.subjectID = s.id')
-        .where('r.personID = :id', { id: parent.id });
+        .innerJoin('r.subject', 's', { 's.id': 'r.subjectID' })
+        .innerJoin('s.fields', 'f', { 'f.subjectID': 's.id' })
+        .where('r.personID = ?', [parent.id]);
       if (!allowNsfw) {
-        query = query.andWhere('s.subjectNsfw = :allowNsfw', { allowNsfw });
+        query = query.andWhere('s.subjectNsfw = ?', [allowNsfw]);
       }
-      const relations = await query.orderBy('r.position', 'ASC').skip(offset).take(limit).getMany();
+      const relations = await query
+        .orderBy({ 'r.position': 'ASC' })
+        .offset(offset)
+        .limit(limit)
+        .execute();
       return relations.map((r) => ({
         subject: convertSubject(r.subject),
         position: r.position,

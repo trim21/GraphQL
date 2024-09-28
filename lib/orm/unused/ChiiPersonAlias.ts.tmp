@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from "typeorm";
 
-@Index("prsn_cat", ["prsnCat", "prsnId"], {})
-@Index("prsn_id", ["prsnId"], {})
+
+
 @Entity("chii_person_alias", { schema: "bangumi" })
 export class ChiiPersonAlias {
   @Column("enum", { name: "prsn_cat", enum: ["prsn", "crt"] })

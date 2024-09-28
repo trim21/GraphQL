@@ -1,11 +1,11 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryKey } from "typeorm";
 
-@Index("pss_topic_id", ["sbjPstMid"], {})
-@Index("sbj_pst_related", ["sbjPstRelated"], {})
-@Index("sbj_pst_uid", ["sbjPstUid"], {})
+
+
+
 @Entity("chii_subject_posts", { schema: "bangumi" })
 export class ChiiSubjectPosts {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: "mediumint",
     name: "sbj_pst_id",
     unsigned: true,
@@ -21,7 +21,7 @@ export class ChiiSubjectPosts {
   @Column("mediumint", {
     name: "sbj_pst_related",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   sbjPstRelated: number;
 
@@ -34,7 +34,7 @@ export class ChiiSubjectPosts {
   @Column("int", {
     name: "sbj_pst_dateline",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   sbjPstDateline: number;
 }

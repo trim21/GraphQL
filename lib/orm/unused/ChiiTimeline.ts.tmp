@@ -1,18 +1,18 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryKey } from "typeorm";
 
-@Index("tml_uid", ["tmlUid"], {})
-@Index("tml_cat", ["tmlCat"], {})
-@Index("tml_batch", ["tmlBatch"], {})
-@Index("query_tml_cat", ["tmlUid", "tmlCat"], {})
+
+
+
+
 @Entity("chii_timeline", { schema: "bangumi" })
 export class ChiiTimeline {
-  @PrimaryGeneratedColumn({ type: "int", name: "tml_id", unsigned: true })
+  @PrimaryKey({ type: "int", name: "tml_id", unsigned: true })
   tmlId: number;
 
   @Column("mediumint", {
     name: "tml_uid",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   tmlUid: number;
 
@@ -22,11 +22,11 @@ export class ChiiTimeline {
   @Column("smallint", {
     name: "tml_type",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   tmlType: number;
 
-  @Column("char", { name: "tml_related", length: 255, default: () => "'0'" })
+  @Column("char", { name: "tml_related", length: 255, default: "'0'" })
   tmlRelated: string;
 
   @Column("mediumtext", { name: "tml_memo" })
@@ -42,7 +42,7 @@ export class ChiiTimeline {
     name: "tml_source",
     comment: "更新来源",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   tmlSource: number;
 
@@ -53,13 +53,13 @@ export class ChiiTimeline {
   })
   tmlReplies: number;
 
-  @Column("int", { name: "tml_dateline", unsigned: true, default: () => "'0'" })
+  @Column("int", { name: "tml_dateline", unsigned: true, default: "'0'" })
   tmlDateline: number;
 
   @Column("tinyint", {
     name: "tml_status",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   tmlStatus: number;
 }

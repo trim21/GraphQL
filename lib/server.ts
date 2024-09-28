@@ -7,9 +7,9 @@ import { fastify } from 'fastify';
 import type { FastifySchemaValidationError } from 'fastify/types/schema.d.ts';
 import metricsPlugin from 'fastify-metrics';
 import mercurius from 'mercurius';
-import { TypeORMError } from 'typeorm';
+import { ValidationError as DBError } from '@mikro-orm/core';
 
-import * as routes from '@app/routes/index.ts';
+// import * as routes from '@app/routes/index.ts';
 
 import { emptyAuth } from './auth/index.ts';
 import * as auth from './auth/index.ts';
@@ -69,7 +69,7 @@ export async function createServer(
 
   server.setErrorHandler(function (error, request, reply) {
     // hide TypeORM message
-    if (error instanceof TypeORMError) {
+    if (error instanceof DBError) {
       this.log.error(error);
       void reply.status(500).send({
         error: 'Internal Server Error',
@@ -138,7 +138,7 @@ export async function createServer(
     },
   });
 
-  await server.register(routes.setup);
+  // await server.register(routes.setup);
 
   return server;
 }

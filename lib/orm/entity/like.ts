@@ -1,4 +1,4 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
 import { UnixTimestamp } from '@app/lib/orm/transformer.ts';
 
@@ -9,10 +9,7 @@ const TYPE_SBJ_REPLY = 10;
 const TYPE_EP_REPLY = 11;
 
 /** 用于点赞/封面投票 */
-@Index('idx_uid', ['uid'], {})
-@Index('idx_related', ['relatedID'], {})
-@Index('type', ['type', 'mainID', 'uid'], {})
-@Entity('chii_likes', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_likes' })
 export class Like {
   static readonly TYPE_SUBJECT_COVER = TYPE_SUBJECT_COVER;
 
@@ -61,30 +58,31 @@ export class Like {
     ]),
   );
 
-  @Column('mediumint', { primary: true, name: 'type', unsigned: true })
+  @Property({ primary: true, name: 'type', unsigned: true, type: 'mediumint' })
   type!: number;
 
-  @Column('mediumint', { primary: true, name: 'related_id' })
+  @Property({ primary: true, name: 'related_id', type: 'mediumint' })
   relatedID!: number;
 
-  @Column('mediumint', { unsigned: true, name: 'main_id', default: '0' })
+  @Property({ unsigned: true, name: 'main_id', default: '0', type: 'mediumint' })
   mainID!: number;
 
-  @Column('mediumint', { primary: true, name: 'uid', unsigned: true })
+  @Property({ primary: true, name: 'uid', unsigned: true, type: 'mediumint' })
   uid!: number;
 
-  @Column('mediumint', { name: 'value', unsigned: true })
+  @Property({ name: 'value', unsigned: true, type: 'mediumint' })
   value = 0;
 
-  @Column('tinyint', { name: 'ban', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'ban', unsigned: true, default: "'0'", type: 'tinyint' })
   ban = 0;
 
   /** Use `@CreateDateColumn` after https://github.com/typeorm/typeorm/issues/8701 is fixed */
-  @Column('int', {
+  @Property({
     name: 'created_at',
     comment: 'unix timestamp seconds',
     unsigned: true,
-    transformer: UnixTimestamp,
+    columnType: 'int',
+    type: UnixTimestamp,
   })
   createdAt!: Date;
 }

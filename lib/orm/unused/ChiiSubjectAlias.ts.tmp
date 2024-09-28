@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from "typeorm";
 
-@Index("subject_id", ["subjectId"], {})
+
 @Entity("chii_subject_alias", { schema: "bangumi" })
 export class ChiiSubjectAlias {
   @Column("int", { name: "subject_id", unsigned: true })
@@ -13,7 +13,7 @@ export class ChiiSubjectAlias {
     name: "subject_type_id",
     comment: "所属条目的类型",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   subjectTypeId: number;
 
@@ -21,7 +21,7 @@ export class ChiiSubjectAlias {
     name: "alias_type",
     comment: "是别名还是条目名",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   aliasType: number;
 

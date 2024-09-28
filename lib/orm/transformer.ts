@@ -1,22 +1,32 @@
+import { Type } from '@mikro-orm/core';
 import * as lo from 'lodash-es';
 
-export interface Transformer<DBType, ValueType> {
-  to(value: ValueType): DBType;
+export class htmlEscapedString extends Type<string, string> {
+  convertToDatabaseValue(value: string) {
+    return lo.escape(value);
+  }
 
-  from(value: DBType): ValueType;
+  convertToJSValue(value: string) {
+    return lo.unescape(value);
+  }
 }
 
-export const htmlEscapedString: Transformer<string, string> = {
-  to: (value: string) => lo.escape(value),
-  from: (value: string) => lo.unescape(value),
-};
+export class UnixTimestamp extends Type<Date, number> {
+  convertToDatabaseValue(value: Date) {
+    return Math.trunc(value.getTime() / 1000);
+  }
 
-export const UnixTimestamp: Transformer<number, Date> = {
-  to: (value: Date) => Math.trunc(value.getTime() / 1000),
-  from: (value: number) => new Date(value * 1000),
-};
+  convertToJSValue(value: number) {
+    return new Date(value * 1000);
+  }
+}
 
-export const BooleanTransformer: Transformer<number, boolean> = {
-  to: (value: boolean) => (value ? 1 : 0),
-  from: (value: number) => value === 1,
-};
+export class BooleanTransformer extends Type<boolean, number> {
+  convertToDatabaseValue(value: boolean) {
+    return value ? 1 : 0;
+  }
+
+  convertToJSValue(value: number) {
+    return value === 1;
+  }
+}

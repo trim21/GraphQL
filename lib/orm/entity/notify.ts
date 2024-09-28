@@ -1,62 +1,56 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { BooleanTransformer } from '@app/lib/orm/transformer.ts';
 
-import type { Transformer } from '@app/lib/orm/transformer.ts';
-
-@Index('nt_from_uid', ['from_uid'], {})
-@Index('nt_mid', ['notify_field_id'], {})
-@Index('nt_uid', ['uid', 'unread', 'type', 'postID'], {})
-@Entity('chii_notify', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_notify' })
 export class Notify {
-  @PrimaryGeneratedColumn({ type: 'mediumint', name: 'nt_id', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', name: 'nt_id', unsigned: true })
   id!: number;
 
-  @Column('mediumint', { name: 'nt_uid', unsigned: true })
+  @Property({ name: 'nt_uid', unsigned: true, type: 'mediumint' })
   uid!: number;
 
-  @Column('mediumint', { name: 'nt_from_uid', unsigned: true })
+  @Property({ name: 'nt_from_uid', unsigned: true, type: 'mediumint' })
   from_uid!: number;
 
-  @Column('tinyint', {
+  @Property({
+    columnType: 'tinyint',
     name: 'nt_status',
     unsigned: true,
-    default: () => "'1'",
-    transformer: {
-      to: (value: boolean) => (value ? 1 : 0),
-      from: Boolean,
-    } satisfies Transformer<number, boolean>,
+    default: "'1'",
+    type: BooleanTransformer,
   })
   unread!: boolean;
 
-  @Column('tinyint', { name: 'nt_type', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'nt_type', unsigned: true, default: "'0'", type: 'tinyint' })
   type!: number;
 
-  @Column('mediumint', {
+  @Property({
+    type: 'mediumint',
+
     name: 'nt_mid',
     comment: 'ID in notify_field',
     unsigned: true,
   })
   notify_field_id!: number;
 
-  @Column('int', { name: 'nt_related_id', unsigned: true })
+  @Property({ name: 'nt_related_id', unsigned: true, type: 'int' })
   postID!: number;
 
-  @Column('int', { name: 'nt_dateline', unsigned: true })
+  @Property({ name: 'nt_dateline', unsigned: true, type: 'int' })
   dateline!: number;
 }
 
-@Index('ntf_hash', ['hash'], {})
-@Index('ntf_rid', ['topicID'], {})
-@Entity('chii_notify_field', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_notify_field' })
 export class NotifyField {
-  @PrimaryGeneratedColumn({ type: 'mediumint', name: 'ntf_id', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', name: 'ntf_id', unsigned: true })
   id!: number;
 
-  @Column('tinyint', { name: 'ntf_hash', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'ntf_hash', unsigned: true, default: "'0'", type: 'tinyint' })
   hash!: number;
 
-  @Column('int', { name: 'ntf_rid', unsigned: true })
+  @Property({ name: 'ntf_rid', unsigned: true, type: 'int' })
   topicID!: number;
 
-  @Column('varchar', { name: 'ntf_title', length: 255 })
+  @Property({ name: 'ntf_title', length: 255, type: 'varchar' })
   title!: string;
 }

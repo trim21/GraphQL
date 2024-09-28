@@ -1,177 +1,185 @@
-import { Column, Entity, Index, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, OneToOne, PrimaryKey, Property, Type } from '@mikro-orm/core';
 
 import type { ACL } from '@app/lib/auth/acl.ts';
-import type { Transformer } from '@app/lib/orm/transformer.ts';
 import { htmlEscapedString } from '@app/lib/orm/transformer.ts';
 import type { UnknownObject } from '@app/lib/types/res.ts';
 
-@Index('username', ['username'], { unique: true })
-@Entity('chii_members', { schema: 'bangumi' })
+class UserACLType extends Type<UnknownObject, string> {
+  convertToDatabaseValue(value: UnknownObject): string {
+    return JSON.stringify(
+      Object.fromEntries(
+        Object.entries(value).map(([key, value]) => {
+          return [key, value ? '1' : '0'];
+        }),
+      ),
+    );
+  }
+
+  convertToJSValue(value: string): UnknownObject {
+    if (!value) {
+      return {};
+    }
+
+    return Object.fromEntries(
+      Object.entries(JSON.parse(value) as UnknownObject).map(([key, value]) => {
+        return [key, typeof value === 'string' ? value === '1' : value];
+      }),
+    );
+  }
+}
+
+@Entity({ schema: 'bangumi', tableName: 'chii_members' })
 export class User {
-  @PrimaryGeneratedColumn({ type: 'mediumint', name: 'uid', unsigned: true })
+  @PrimaryKey({ type: 'mediumint', name: 'uid', unsigned: true })
   id!: number;
 
-  @Column('char', { name: 'username', unique: true, length: 15 })
+  @Property({ name: 'username', unique: true, length: 15, type: 'char' })
   username!: string;
 
-  @Column('varchar', { name: 'nickname', length: 30 })
+  @Property({ name: 'nickname', length: 30, type: 'varchar' })
   nickname!: string;
 
-  @Column('varchar', { name: 'avatar', length: 255 })
+  @Property({ name: 'avatar', length: 255, type: 'varchar' })
   avatar!: string;
 
-  @Column('smallint', { name: 'groupid', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'groupid', unsigned: true, default: "'0'", type: 'smallint' })
   groupid!: number;
 
-  @Column('int', { name: 'regdate', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'regdate', unsigned: true, default: "'0'", type: 'int' })
   regdate!: number;
 
-  @Column('int', { name: 'lastvisit', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'lastvisit', unsigned: true, default: "'0'", type: 'int' })
   lastvisit!: number;
 
-  @Column('int', { name: 'lastactivity', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'lastactivity', unsigned: true, default: "'0'", type: 'int' })
   lastactivity!: number;
 
-  @Column('int', { name: 'lastpost', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'lastpost', unsigned: true, default: "'0'", type: 'int' })
   lastPost!: number;
 
-  @Column('char', { name: 'dateformat', length: 10 })
+  @Property({ name: 'dateformat', length: 10, type: 'char' })
   dateformat!: string;
 
-  @Column('tinyint', { name: 'timeformat', width: 1, default: () => "'0'" })
+  @Property({ name: 'timeformat', default: "'0'", type: 'tinyint' })
   timeformat!: boolean;
 
-  @Column('char', { name: 'timeoffset', length: 4 })
+  @Property({ name: 'timeoffset', length: 4, type: 'char' })
   timeoffset!: string;
 
-  @Column('tinyint', { name: 'newpm', width: 1, default: () => "'0'" })
+  @Property({ name: 'newpm', default: "'0'", type: 'tinyint' })
   newpm!: boolean;
 
-  @Column('smallint', {
+  @Property({
+    columnType: 'smallint',
     name: 'new_notify',
     comment: '新提醒',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
+    type: Number,
   })
   newNotify!: number;
 
-  @Column('varchar', {
+  @Property({
+    columnType: 'varchar',
     name: 'sign',
     length: 255,
-    transformer: htmlEscapedString,
+    type: htmlEscapedString,
   })
   sign!: string;
 
-  @Column('char', { name: 'password_crypt', length: 64 })
+  @Property({ name: 'password_crypt', length: 64, type: 'char' })
   passwordCrypt!: string;
 
-  @Column('char', { name: 'email', length: 50 })
+  @Property({ name: 'email', length: 50, type: 'char' })
   email!: string;
 
   @OneToOne(() => UserField)
   fields!: UserField;
 
-  @Column('mediumtext', {
+  @Property({
+    columnType: 'mediumtext',
     name: 'acl',
-    transformer: {
-      to(value: UnknownObject): string {
-        return JSON.stringify(
-          Object.fromEntries(
-            Object.entries(value).map(([key, value]) => {
-              return [key, value ? '1' : '0'];
-            }),
-          ),
-        );
-      },
-      from(value: string): UnknownObject {
-        if (!value) {
-          return {};
-        }
-
-        return Object.fromEntries(
-          Object.entries(JSON.parse(value) as UnknownObject).map(([key, value]) => {
-            return [key, typeof value === 'string' ? value === '1' : value];
-          }),
-        );
-      },
-    } satisfies Transformer<string, UnknownObject>,
+    type: UserACLType,
   })
   acl!: ACL;
 }
 
-@Entity('chii_memberfields', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_memberfields' })
 export class UserField {
-  @Column('mediumint', {
+  @Property({
+    columnType: 'mediumint',
     primary: true,
     name: 'uid',
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
+    type: Number,
   })
   uid!: number;
 
-  @Column('varchar', { name: 'site', length: 75 })
+  @Property({ name: 'site', length: 75, type: 'varchar' })
   site!: string;
 
-  @Column('varchar', { name: 'location', length: 30 })
+  @Property({ name: 'location', length: 30, type: 'varchar' })
   location!: string;
 
-  @Column('text', { name: 'bio' })
+  @Property({ name: 'bio', type: 'text' })
   bio!: string;
 
-  @Column('mediumtext', { name: 'privacy' })
+  @Property({ name: 'privacy', type: 'mediumtext' })
   privacy!: string;
 
-  @Column('mediumtext', { name: 'blocklist' })
+  @Property({ name: 'blocklist', type: 'mediumtext' })
   blocklist!: string;
 }
 
-@Entity('chii_usergroup', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_usergroup' })
 export class UserGroup {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: 'mediumint',
     name: 'usr_grp_id',
     unsigned: true,
   })
   id!: number;
 
-  @Column('varchar', { name: 'usr_grp_name', length: 255 })
+  @Property({ name: 'usr_grp_name', length: 255, type: 'varchar' })
   name!: string;
 
-  @Column('mediumtext', { name: 'usr_grp_perm' })
+  @Property({ name: 'usr_grp_perm', type: 'mediumtext' })
   Permission!: string;
 
-  @Column('int', { name: 'usr_grp_dateline', unsigned: true })
+  @Property({ name: 'usr_grp_dateline', unsigned: true, type: 'int' })
   updatedAt!: number;
 }
 
-@Index('uid', ['frdUid'], {})
-@Index('frd_fid', ['frdFid'], {})
-@Entity('chii_friends', { schema: 'bangumi' })
+@Entity({ schema: 'bangumi', tableName: 'chii_friends' })
 export class Friends {
-  @PrimaryColumn('mediumint', {
+  @PrimaryKey({
     name: 'frd_uid',
     unsigned: true,
-    default: () => "'0'",
+    type: 'mediumint',
+    default: "'0'",
   })
   frdUid!: number;
 
-  @PrimaryColumn('mediumint', {
+  @PrimaryKey({
     name: 'frd_fid',
     unsigned: true,
-    default: () => "'0'",
+    type: 'mediumint',
+    default: "'0'",
   })
   frdFid!: number;
 
-  @Column('tinyint', {
+  @Property({
+    type: 'tinyint',
     name: 'frd_grade',
     unsigned: true,
-    default: () => "'1'",
+    default: "'1'",
   })
   frdGrade!: number;
 
-  @Column('int', { name: 'frd_dateline', unsigned: true, default: () => "'0'" })
+  @Property({ name: 'frd_dateline', unsigned: true, default: "'0'", type: 'int' })
   frdDateline!: number;
 
-  @Column('char', { name: 'frd_description', length: 255 })
+  @Property({ name: 'frd_description', length: 255, type: 'char' })
   frdDescription!: string;
 }

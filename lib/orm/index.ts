@@ -1,12 +1,12 @@
 import * as php from '@trim21/php-serialize';
 import * as lo from 'lodash-es';
 import { DateTime } from 'luxon';
-import { DataSource, In } from 'typeorm';
 
 import config from '@app/lib/config.ts';
 import { UnexpectedNotFoundError } from '@app/lib/error.ts';
 import { logger } from '@app/lib/logger.ts';
 import type { CommentState, TopicDisplay } from '@app/lib/topic/index.ts';
+import { EntityManager, EntityRepository, defineConfig, MikroORM } from '@mikro-orm/mysql'; // or any other driver package
 
 import * as entity from './entity/index.ts';
 import {
@@ -44,123 +44,102 @@ import {
   UserGroup,
   WebSessions,
 } from './entity/index.ts';
+import { ReflectMetadataProvider } from '@mikro-orm/mysql';
 
 export * as entity from './entity/index.ts';
 
-export const AppDataSource = new DataSource({
-  type: 'mysql',
-  host: config.mysql.host,
-  port: config.mysql.port,
-  username: config.mysql.user,
-  password: config.mysql.password,
-  database: config.mysql.db,
-  synchronize: false,
-  maxQueryExecutionTime: 2000,
-  logger: {
-    log(level: 'log' | 'info' | 'warn', message: unknown) {
-      if (level === 'info') {
-        logger.info(message);
-      } else if (level === 'warn') {
-        logger.warn(message);
-      } else {
-        logger.info({ log_level: level }, message?.toString());
-      }
-    },
+export const orm = await MikroORM.init(
+  defineConfig({
+    host: config.mysql.host,
+    port: config.mysql.port,
+    user: config.mysql.user,
+    password: config.mysql.password,
+    dbName: config.mysql.db,
+    metadataProvider: ReflectMetadataProvider,
+    allowGlobalContext: true,
+    flushMode: 'always',
+    entities: [
+      App,
+      Cast,
+      Character,
+      CharacterSubjects,
+      EpRevision,
+      User,
+      UserField,
+      UserGroup,
+      Like,
+      Notify,
+      NotifyField,
+      SubjectImage,
+      Friends,
+      Group,
+      GroupMembers,
+      Episode,
+      EpisodeComment,
+      OauthAccessTokens,
+      OauthClient,
+      Person,
+      PersonSubjects,
+      RevHistory,
+      RevText,
+      Subject,
+      SubjectTopic,
+      SubjectPost,
+      SubjectFields,
+      SubjectRelation,
+      GroupTopic,
+      GroupPost,
+      SubjectRev,
+      SubjectInterest,
+      WebSessions,
+    ],
+  }),
+);
 
-    logQuerySlow(time: number, query: string, parameters?: unknown[]) {
-      logger.warn({ time, query, parameters }, 'slow sql');
-    },
-    logQueryError(error: string | Error, query: string, parameters?: unknown[]) {
-      logger.error({ error, query, parameters }, 'query error');
-    },
+export const em: EntityManager = orm.em;
 
-    logQuery(query, params) {
-      logger.trace({ query, params });
-    },
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    logSchemaBuild() {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    logMigration() {},
-  },
-  entities: [
-    App,
-    Cast,
-    Character,
-    CharacterSubjects,
-    EpRevision,
-    User,
-    UserField,
-    OauthAccessTokens,
-    WebSessions,
-    UserGroup,
-    Notify,
-    NotifyField,
-    SubjectImage,
-    Friends,
-    Group,
-    GroupMembers,
-    Episode,
-    EpisodeComment,
-    OauthClient,
-    Person,
-    PersonSubjects,
-    RevHistory,
-    RevText,
-    Subject,
-    SubjectTopic,
-    SubjectPost,
-    SubjectFields,
-    SubjectRelation,
-    GroupTopic,
-    GroupPost,
-    SubjectRev,
-    SubjectInterest,
-    Like,
-  ],
-});
+export const UserRepo = em.getRepository(User);
+export const UserFieldRepo = em.getRepository(UserField);
+export const FriendRepo = em.getRepository(Friends);
 
-export const UserRepo = AppDataSource.getRepository(User);
-export const UserFieldRepo = AppDataSource.getRepository(UserField);
-export const FriendRepo = AppDataSource.getRepository(Friends);
+export const CharacterRepo = em.getRepository(Character);
+export const CharacterSubjectsRepo = em.getRepository(CharacterSubjects);
+export const CastRepo = em.getRepository(Cast);
 
-export const CharacterRepo = AppDataSource.getRepository(Character);
-export const CharacterSubjectsRepo = AppDataSource.getRepository(CharacterSubjects);
-export const CastRepo = AppDataSource.getRepository(Cast);
+export const PersonRepo = em.getRepository(Person);
+export const PersonSubjectsRepo = em.getRepository(PersonSubjects);
 
-export const PersonRepo = AppDataSource.getRepository(Person);
-export const PersonSubjectsRepo = AppDataSource.getRepository(PersonSubjects);
+export const SubjectRepo = em.getRepository(Subject);
+export const SubjectTopicRepo = em.getRepository(SubjectTopic);
+export const SubjectPostRepo = em.getRepository(SubjectPost);
+export const SubjectFieldsRepo = em.getRepository(SubjectFields);
+export const SubjectImageRepo = em.getRepository(SubjectImage);
+export const SubjectRelationRepo = em.getRepository(SubjectRelation);
+export const EpisodeRepo = em.getRepository(Episode);
+export const EpisodeCommentRepo = em.getRepository(EpisodeComment);
+export const EpRevRepo = em.getRepository(EpRevision);
 
-export const SubjectRepo = AppDataSource.getRepository(Subject);
-export const SubjectTopicRepo = AppDataSource.getRepository(SubjectTopic);
-export const SubjectPostRepo = AppDataSource.getRepository(SubjectPost);
-export const SubjectFieldsRepo = AppDataSource.getRepository(SubjectFields);
-export const SubjectImageRepo = AppDataSource.getRepository(SubjectImage);
-export const SubjectRelationRepo = AppDataSource.getRepository(SubjectRelation);
-export const EpisodeRepo = AppDataSource.getRepository(Episode);
-export const EpisodeCommentRepo = AppDataSource.getRepository(EpisodeComment);
-export const EpRevRepo = AppDataSource.getRepository(EpRevision);
+export const RevHistoryRepo = em.getRepository(RevHistory);
+export const RevTextRepo = em.getRepository(RevText);
 
-export const RevHistoryRepo = AppDataSource.getRepository(RevHistory);
-export const RevTextRepo = AppDataSource.getRepository(RevText);
+export const SubjectRevRepo = em.getRepository(SubjectRev);
+export const SubjectInterestRepo = em.getRepository(SubjectInterest);
 
-export const SubjectRevRepo = AppDataSource.getRepository(SubjectRev);
-export const SubjectInterestRepo = AppDataSource.getRepository(SubjectInterest);
+export const AccessTokenRepo = em.getRepository(OauthAccessTokens);
+export const AppRepo = em.getRepository(App);
+export const OauthClientRepo = em.getRepository(OauthClient);
+export const SessionRepo = em.getRepository(WebSessions);
+export const UserGroupRepo = em.getRepository(UserGroup);
 
-export const AccessTokenRepo = AppDataSource.getRepository(OauthAccessTokens);
-export const AppRepo = AppDataSource.getRepository(App);
-export const OauthClientRepo = AppDataSource.getRepository(OauthClient);
-export const SessionRepo = AppDataSource.getRepository(WebSessions);
-export const UserGroupRepo = AppDataSource.getRepository(UserGroup);
+export const NotifyRepo = em.getRepository(Notify);
+export const NotifyFieldRepo = em.getRepository(NotifyField);
 
-export const NotifyRepo = AppDataSource.getRepository(Notify);
-export const NotifyFieldRepo = AppDataSource.getRepository(NotifyField);
+export const GroupRepo = em.getRepository(Group);
+export const GroupTopicRepo = em.getRepository(GroupTopic);
+export const GroupPostRepo = em.getRepository(GroupPost);
+export const GroupMemberRepo = em.getRepository(GroupMembers);
 
-export const GroupRepo = AppDataSource.getRepository(Group);
-export const GroupTopicRepo = AppDataSource.getRepository(GroupTopic);
-export const GroupPostRepo = AppDataSource.getRepository(GroupPost);
-export const GroupMemberRepo = AppDataSource.getRepository(GroupMembers);
-
-export const LikeRepo = AppDataSource.getRepository(Like);
+export const LikeRepo = em.getRepository(Like);
 
 export const repo = {
   UserField: UserFieldRepo,
@@ -199,9 +178,7 @@ export interface IUser {
 }
 
 export async function fetchUserByUsername(username: string): Promise<IUser | null> {
-  const user = await UserRepo.findOne({
-    where: { username },
-  });
+  const user = await UserRepo.findOne({ username });
 
   if (!user) {
     return null;
@@ -222,9 +199,7 @@ export async function fetchUser(userID: number): Promise<IUser | null> {
   if (!userID) {
     throw new Error(`undefined user id ${userID}`);
   }
-  const user = await UserRepo.findOne({
-    where: { id: userID },
-  });
+  const user = await UserRepo.findOne({ id: userID });
 
   if (!user) {
     return null;
@@ -284,7 +259,7 @@ const defaultPermission: Permission = {
 };
 
 export async function fetchPermission(userGroup: number): Promise<Readonly<Permission>> {
-  const permission = await UserGroupRepo.findOne({ where: { id: userGroup } });
+  const permission = await UserGroupRepo.findOne({ id: userGroup });
   if (!permission) {
     logger.warn("can't find permission for userGroup %d", userGroup);
     return Object.freeze({ ...defaultPermission });
@@ -340,9 +315,7 @@ export async function fetchUsers(userIDs: number[]): Promise<Record<number, IUse
     return {};
   }
 
-  const users = await UserRepo.find({
-    where: { id: In(lo.uniq(userIDs)) },
-  });
+  const users = await UserRepo.find({ id: { $in: lo.uniq(userIDs) } });
 
   return Object.fromEntries(
     users.map((user) => [
@@ -374,9 +347,7 @@ export interface IGroup {
 }
 
 export async function fetchGroupByID(id: number): Promise<IGroup | null> {
-  const group = await GroupRepo.findOne({
-    where: { id },
-  });
+  const group = await GroupRepo.findOne({ id });
 
   if (!group) {
     return null;
@@ -396,9 +367,7 @@ export async function fetchGroupByID(id: number): Promise<IGroup | null> {
 }
 
 export async function fetchGroups(ids: number[]): Promise<Record<number, IGroup>> {
-  const groups = await GroupRepo.find({
-    where: { id: In(lo.uniq(ids)) },
-  });
+  const groups = await GroupRepo.find({ id: { $in: lo.uniq(ids) } });
 
   return Object.fromEntries(
     groups.map((group) => {
@@ -421,9 +390,7 @@ export async function fetchGroups(ids: number[]): Promise<Record<number, IGroup>
 }
 
 export async function fetchGroup(name: string): Promise<IGroup | null> {
-  const group = await GroupRepo.findOne({
-    where: { name },
-  });
+  const group = await GroupRepo.findOne({ name });
 
   if (!group) {
     return null;
@@ -466,17 +433,13 @@ export interface ISubject {
 }
 
 export async function fetchSubjectByID(id: number): Promise<ISubject | null> {
-  const subject = await SubjectRepo.findOne({
-    where: { id },
-  });
+  const subject = await SubjectRepo.findOne({ id });
 
   if (!subject) {
     return null;
   }
 
-  const f = await SubjectFieldsRepo.findOne({
-    where: { subjectID: id },
-  });
+  const f = await SubjectFieldsRepo.findOne({ subjectID: id });
 
   if (!f) {
     throw new UnexpectedNotFoundError(`subject fields ${id}`);
@@ -498,9 +461,7 @@ export async function fetchSubjectByID(id: number): Promise<ISubject | null> {
 }
 
 export async function fetchSubjectTopicPosts(topicID: number) {
-  return await SubjectPostRepo.find({
-    where: { topicID: topicID, state: 0 },
-  });
+  return await SubjectPostRepo.find({ topicID: topicID, state: 0 });
 }
 
 export async function fetchFriends(id?: number): Promise<Record<number, boolean>> {
@@ -508,18 +469,14 @@ export async function fetchFriends(id?: number): Promise<Record<number, boolean>
     return {};
   }
 
-  const friends = await FriendRepo.find({
-    where: { frdUid: id },
-  });
+  const friends = await FriendRepo.find({ frdUid: id });
 
   return Object.fromEntries(friends.map((x) => [x.frdFid, true]));
 }
 
 /** Is user(another) is friend of user(userID) */
 export async function isFriends(userID: number, another: number): Promise<boolean> {
-  const friends = await FriendRepo.count({
-    where: { frdUid: userID, frdFid: another },
-  });
+  const friends = await FriendRepo.count({ frdUid: userID, frdFid: another });
 
   return friends !== 0;
 }
@@ -537,7 +494,7 @@ interface PostCreation {
 export async function createPost(post: PostCreation): Promise<{ id: number }> {
   const now = DateTime.now();
 
-  return await AppDataSource.transaction(async (t) => {
+  return await em.transactional(async (t) => {
     const postRepo =
       post.topicType === 'group'
         ? t.getRepository(entity.GroupPost)
@@ -547,7 +504,7 @@ export async function createPost(post: PostCreation): Promise<{ id: number }> {
         ? t.getRepository(entity.GroupTopic)
         : t.getRepository(entity.SubjectTopic);
 
-    const topic = await topicRepo.save({
+    const topic = await topicRepo.insert({
       title: post.title,
       parentID: post.parentID,
       creatorID: post.userID,
@@ -559,7 +516,7 @@ export async function createPost(post: PostCreation): Promise<{ id: number }> {
     });
 
     await postRepo.insert({
-      topicID: topic.id,
+      topicID: topic,
       dateline: now.toUnixInteger(),
       state: post.state,
       uid: post.userID,
@@ -567,14 +524,12 @@ export async function createPost(post: PostCreation): Promise<{ id: number }> {
       related: 0,
     });
 
-    return { id: topic.id };
+    return { id: topic };
   });
 }
 
 export async function isMemberInGroup(gid: number, uid: number): Promise<boolean> {
-  const inGroup = await GroupMemberRepo.count({
-    where: { gmbGid: gid, gmbUid: uid },
-  });
+  const inGroup = await GroupMemberRepo.count({ gmbGid: gid, gmbUid: uid });
 
   return Boolean(inGroup);
 }
@@ -588,4 +543,6 @@ export async function fetchUserX(id: number): Promise<IUser> {
   return u;
 }
 
-export { MoreThan as Gt, MoreThanOrEqual as Gte, In, Like } from 'typeorm';
+export function In<T>(values: T) {
+  return { $in: values };
+}

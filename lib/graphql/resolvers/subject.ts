@@ -5,9 +5,10 @@ import * as php from '@trim21/php-serialize';
 import type * as types from '@app/lib/graphql/__generated__/resolvers.ts';
 import { convertUser } from '@app/lib/graphql/schema.ts';
 import * as entity from '@app/lib/orm/entity/index.ts';
-import { SubjectRepo } from '@app/lib/orm/index.ts';
+import { em, SubjectRepo } from '@app/lib/orm/index.ts';
 import { subjectCover } from '@app/lib/response.ts';
 import { platforms } from '@app/lib/subject/index.ts';
+import sql from '@app/sql.ts';
 
 export function convertSubject(subject: entity.Subject) {
   const fields = subject.fields;
@@ -117,16 +118,28 @@ export const subjectResolver: types.QueryResolvers['subject'] = async (
   { id },
   { auth: { allowNsfw } },
 ): Promise<types.Subject | null> => {
-  let query = SubjectRepo.createQueryBuilder('s')
-    .innerJoinAndMapOne('s.fields', entity.SubjectFields, 'f', 'f.subjectID = s.id')
-    .where('s.id = :id', { id });
-  if (!allowNsfw) {
-    query = query.andWhere('s.subjectNsfw = :allowNsfw', { allowNsfw });
-  }
-  const subject = await query.getOne();
+  const res = await em.getConnection().execute(
+    ...sql`select *, fields.*
+           from chii_subjects as s
+                    inner join chii_subject_fields as fields
+           where s.subject_id = fields.field_sid
+             and s.subject_id = ${id}
+             and (${allowNsfw} or (s.subject_nsfw = false))
+           limit 1
+    `,
+  );
+
+  console.log(res);
+
+  const [subject] = res.map((a) => em.map(entity.Subject, a));
+
+  console.log(subject);
+
   if (!subject) {
     return null;
   }
+
+  console.log(subject.fields.subject);
 
   return convertSubject(subject);
 };

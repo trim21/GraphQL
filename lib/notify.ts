@@ -1,7 +1,6 @@
 import * as php from '@trim21/php-serialize';
 import * as lodash from 'lodash-es';
 import type { DateTime } from 'luxon';
-import type { Repository } from 'typeorm';
 
 import { siteUrl } from '@app/lib/config.ts';
 
@@ -9,13 +8,7 @@ import { UnreachableError } from './error.ts';
 import type { Notify } from './orm/entity/index.ts';
 import * as entity from './orm/entity/index.ts';
 import * as orm from './orm/index.ts';
-import {
-  AppDataSource,
-  NotifyFieldRepo,
-  NotifyRepo,
-  UserFieldRepo,
-  UserRepo,
-} from './orm/index.ts';
+import { em, NotifyFieldRepo, NotifyRepo, UserFieldRepo, UserRepo } from './orm/index.ts';
 import { intval } from './utils/index.ts';
 
 /**
@@ -106,45 +99,47 @@ export async function create({
   }
 
   const hash = hashType(type);
-  let notifyField = await NotifyFieldRepo.findOne({ where: { hash, topicID } });
+  let notifyField = await NotifyFieldRepo.findOne({ hash, topicID });
 
-  if (!notifyField) {
-    notifyField = await NotifyFieldRepo.save({
+  const notifyFieldID =
+    notifyField?.id ??
+    (await NotifyFieldRepo.insert({
       title: title,
       hash,
       topicID,
-    });
-  }
+    }));
 
-  await NotifyRepo.save({
+  await NotifyRepo.insert({
     uid: destUserID,
     from_uid: sourceUserID,
     unread: true,
     dateline: now.toUnixInteger(),
     type,
-    notify_field_id: notifyField.id,
+    notify_field_id: notifyFieldID,
     postID,
   });
 
   const unread = await countNotifyRecord(NotifyRepo, destUserID);
+
+  orm.em.createQueryBuilder(entity.User);
 
   await UserRepo.update({ id: destUserID }, { newNotify: unread });
 }
 
 /** @internal 从 notify 表中读取真正的未读通知数量 */
 async function countNotifyRecord(repo: Repository<entity.Notify>, userID: number): Promise<number> {
-  return repo.count({ where: { uid: userID, unread: true } });
+  return repo.count({ uid: userID, unread: true });
 }
 
 /** 从用户表的 new_notify 读取未读通知缓存。 */
 export async function count(userID: number): Promise<number> {
-  const u = await UserRepo.findOne({ where: { id: userID } });
+  const u = await UserRepo.findOne({ id: userID });
 
   return u?.newNotify ?? 0;
 }
 
 export async function markAllAsRead(userID: number, id: number[] | undefined): Promise<void> {
-  await AppDataSource.transaction(async (t) => {
+  await orm.em.transactional(async (t) => {
     const notifyRepo = t.getRepository(entity.Notify);
     const memberRepo = t.getRepository(entity.User);
     await notifyRepo.update(
@@ -185,7 +180,7 @@ interface PrivacySetting {
 }
 
 async function userNotifySetting(userID: number): Promise<PrivacySetting> {
-  const f = await UserFieldRepo.findOneOrFail({ where: { uid: userID } });
+  const f = await UserFieldRepo.findOneOrFail({ uid: userID });
 
   const field = php.parse(f.privacy) as Record<number, number>;
 
@@ -219,10 +214,10 @@ interface Filter {
 
 /** 返回通知 */
 export async function list(userID: number, { unread, limit = 30 }: Filter): Promise<INotify[]> {
-  const notifications: Notify[] = await NotifyRepo.find({
+  const notifications: Notify[] = await NotifyRepo.findAll({
     where: { uid: userID, unread },
-    order: { dateline: 'desc' },
-    take: limit,
+    orderBy: { dateline: 'desc' },
+    limit,
   });
 
   if (notifications.length === 0) {
@@ -231,11 +226,7 @@ export async function list(userID: number, { unread, limit = 30 }: Filter): Prom
 
   const fieldIds = lodash.uniq(notifications.map((x) => x.notify_field_id));
 
-  const fields = await NotifyFieldRepo.find({
-    where: {
-      id: orm.In(fieldIds),
-    },
-  });
+  const fields = await NotifyFieldRepo.find({ id: orm.In(fieldIds) });
 
   const fieldMap = Object.fromEntries(fields.map((x) => [x.id, x]));
 

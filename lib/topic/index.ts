@@ -16,7 +16,6 @@ import * as orm from '@app/lib/orm';
 import * as entity from '@app/lib/orm/entity/index.ts';
 import type { IBaseReply, IUser, Page } from '@app/lib/orm/index.ts';
 import {
-  AppDataSource,
   fetchUserX,
   GroupPostRepo,
   GroupRepo,

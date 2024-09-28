@@ -1,23 +1,23 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryKey } from "typeorm";
 
-@Index("user_interest", ["interestUid", "interestSubjectId"], { unique: true })
-@Index("interest_collect_dateline", ["interestCollectDateline"], {})
-@Index("interest_id", ["interestUid", "interestPrivate"], {})
-@Index("interest_lasttouch", ["interestLasttouch"], {})
-@Index("interest_private", ["interestPrivate"], {})
-@Index("interest_rate", ["interestRate"], {})
-@Index("interest_subject_id", ["interestSubjectId", "interestType"], {})
-@Index("interest_subject_id_2", ["interestSubjectId"], {})
-@Index("interest_subject_type", ["interestSubjectType"], {})
-@Index("interest_type", ["interestType"], {})
-@Index("interest_type_2", ["interestType", "interestUid"], {})
-@Index("interest_uid", ["interestUid"], {})
-@Index(
+
+
+
+
+
+
+
+
+
+
+
+
+
   "interest_uid_2",
   ["interestUid", "interestPrivate", "interestLasttouch"],
   {}
 )
-@Index(
+
   "subject_collect",
   [
     "interestSubjectId",
@@ -27,7 +27,7 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
   ],
   {}
 )
-@Index(
+
   "subject_comment",
   [
     "interestSubjectId",
@@ -37,32 +37,32 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
   ],
   {}
 )
-@Index(
+
   "subject_lasttouch",
   ["interestSubjectId", "interestPrivate", "interestLasttouch"],
   {}
 )
-@Index(
+
   "subject_rate",
   ["interestSubjectId", "interestRate", "interestPrivate"],
   {}
 )
-@Index(
+
   "tag_subject_id",
   ["interestSubjectType", "interestType", "interestUid"],
   {}
 )
-@Index(
+
   "top_subject",
   ["interestSubjectId", "interestSubjectType", "interestDoingDateline"],
   {}
 )
-@Index(
+
   "user_collect_latest",
   ["interestSubjectType", "interestType", "interestUid", "interestPrivate"],
   {}
 )
-@Index(
+
   "user_collect_type",
   [
     "interestSubjectType",
@@ -73,10 +73,10 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
   ],
   {}
 )
-@Index("user_collects", ["interestSubjectType", "interestUid"], {})
+
 @Entity("chii_subject_interests", { schema: "bangumi" })
 export class ChiiSubjectInterests {
-  @PrimaryGeneratedColumn({ type: "int", name: "interest_id", unsigned: true })
+  @PrimaryKey({ type: "int", name: "interest_id", unsigned: true })
   interestId: number;
 
   @Column("mediumint", { name: "interest_uid", unsigned: true })
@@ -88,21 +88,21 @@ export class ChiiSubjectInterests {
   @Column("smallint", {
     name: "interest_subject_type",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   interestSubjectType: number;
 
   @Column("tinyint", {
     name: "interest_rate",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   interestRate: number;
 
   @Column("tinyint", {
     name: "interest_type",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   interestType: number;
 
@@ -118,7 +118,7 @@ export class ChiiSubjectInterests {
   @Column("mediumint", {
     name: "interest_ep_status",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   interestEpStatus: number;
 
@@ -153,7 +153,7 @@ export class ChiiSubjectInterests {
   @Column("int", {
     name: "interest_lasttouch",
     unsigned: true,
-    default: () => "'0'",
+    default: "'0'",
   })
   interestLasttouch: number;
 

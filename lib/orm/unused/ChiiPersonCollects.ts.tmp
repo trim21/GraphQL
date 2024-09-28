@@ -1,11 +1,11 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryKey } from "typeorm";
 
-@Index("prsn_clt_cat", ["prsnCltCat", "prsnCltMid"], {})
-@Index("prsn_clt_uid", ["prsnCltUid"], {})
-@Index("prsn_clt_mid", ["prsnCltMid"], {})
+
+
+
 @Entity("chii_person_collects", { schema: "bangumi" })
 export class ChiiPersonCollects {
-  @PrimaryGeneratedColumn({
+  @PrimaryKey({
     type: "mediumint",
     name: "prsn_clt_id",
     unsigned: true,
